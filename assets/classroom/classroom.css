@@ -19,8 +19,8 @@ a { color: #a4dfca; text-underline-offset: .22em; }
 .school span { width: 9px; height: 9px; background: #e9b677; box-shadow: 3px 3px #754e53; }
 h1 { font-size: clamp(2.65rem, 6vw, 4.5rem); line-height: 1.05; margin: 12px 0; letter-spacing: .06em; }
 .intro { margin: 0; color: #c9c2b9; line-height: 1.6; }
-.room { border: 1px solid #51515b; background: #211e2b; }
-.views { display: flex; flex-wrap: wrap; gap: 6px; padding: 9px; background: #222b34; }
+.room { position: relative; border: 1px solid #51515b; background: #211e2b; }
+.views { position: relative; z-index: 3; display: flex; flex-wrap: wrap; gap: 6px; padding: 9px; background: #222b34; }
 .views button, .entrances button, .back {
   min-height: 44px;
   padding: 8px 15px;
@@ -64,10 +64,9 @@ h1 { font-size: clamp(2.65rem, 6vw, 4.5rem); line-height: 1.05; margin: 12px 0; 
 .hotspot[hidden] + .marker { display: none; }
 .hotspot:is(:hover, :focus-visible, [aria-expanded="true"]) + .marker .label { display: block; }
 .entrances { display: none; }
-.detail { display: grid; grid-template-columns: 1fr minmax(0, 1fr); gap: 24px; padding: 25px; border-top: 1px solid #51515b; }
+.detail { display: block; padding: 25px; border-top: 1px solid #51515b; }
 .detail-copy h2 { margin: 0 0 .4em; }
 .detail-copy p { color: #ddd0c2; max-width: 46ch; line-height: 1.65; }
-#honor-closeup { width: min(100%, 335px); aspect-ratio: 310 / 304; justify-self: center; align-self: start; border: 1px solid #886c5a; background: url(classroom.jpg) 86.9% 27.5% / 539.35% auto no-repeat; }
 .back { margin-top: 16px; }
 footer { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px 18px; align-items: baseline; color: #c9c2b9; font-size: .85rem; padding-bottom: 14px; }
 .no-script { padding: 0 12px; }
@@ -75,16 +74,61 @@ footer { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6p
 @media (max-width: 720px) {
   .shell { width: calc(100% - 24px); }
   .masthead { padding-top: 24px; }
-  .viewport { aspect-ratio: 4 / 3; }
-  .viewport[data-view="overview"] { aspect-ratio: 1672 / 941; }
   .entrances { display: flex; flex-wrap: wrap; gap: 6px; padding: 9px; background: #222b34; border-top: 1px solid #51515b; }
   .entrances button { padding-inline: 10px; }
   .entrances button[aria-expanded="true"] { border-color: #ffd18b; background: #3c3d49; }
   .hotspot, .marker { display: none; }
-  .detail { grid-template-columns: 1fr; gap: 16px; padding: 17px; }
-  #honor-closeup { grid-row: 1; }
+  .detail { padding: 17px; }
 }
 
 @media (max-width: 380px) {
   .views button { flex: 1; padding-inline: 6px; }
+}
+
+
+.views .motion-option { margin-inline-start: auto; }
+#exit-focus {
+  position: absolute;
+  inset-inline-end: 10px;
+  inset-block-start: calc(100% + 8px);
+}
+.world { transform: translate(-50%, -50%); }
+.honor-wall, .honor-layer, .honor-layer::before {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.honor-wall, .honor-layer::before { clip-path: var(--honor-shape); }
+.honor-wall {
+  background:
+    repeating-linear-gradient(6deg, #ffc4860a 0 1px, transparent 1px 4px),
+    linear-gradient(146deg, #bc8066 44%, #d89872 72%, #dc9b72 88%);
+}
+.honor-layer::before {
+  content: "";
+  background: url(classroom.jpg) center / 100% 100% no-repeat;
+}
+#hotspots[inert] { visibility: hidden; }
+.detail[data-object="honors"] {
+  background: #252335;
+  border: 1px solid #8d7062;
+  box-shadow: 0 8px 30px #1b101865;
+}
+.detail[data-object="honors"] h2 { color: #ffe2a5; }
+.detail[data-focus-animation] { animation: reveal-detail 140ms ease-out both; }
+@keyframes reveal-detail { from { opacity: 0; } to { opacity: 1; } }
+
+@media (min-width: 721px) {
+  .detail[data-object="honors"] {
+    position: absolute;
+    z-index: 2;
+    inset-inline-end: clamp(12px, 2.3vw, 32px);
+    inset-block-end: 15%;
+    width: 33%;
+    padding: clamp(13px, 2vw, 24px);
+  }
+}
+@media (max-width: 720px) {
+  .views .motion-option { margin-inline-start: 0; }
+  .detail[data-object="honors"] { border-inline: 0; box-shadow: none; }
 }
