@@ -174,6 +174,42 @@ function cameraPose() {
   };
 }
 
+const pointerRig = document.querySelector("#pointer-rig");
+let pointerFrame = 0;
+let pointerPose = "";
+
+function resetPointerView() {
+  if (pointerFrame) cancelAnimationFrame(pointerFrame);
+  pointerFrame = 0;
+  pointerPose = "";
+  pointerRig.style.removeProperty("transform");
+}
+
+viewport.addEventListener("pointermove", event => {
+  if (event.pointerType !== "mouse" || reducedMotion() || motion) return;
+
+  const { left, top, width, height } = viewport.getBoundingClientRect();
+  const horizontal = Math.max(-1, Math.min(1, 2 * (event.clientX - left) / width - 1));
+  const vertical = Math.max(-1, Math.min(1, 2 * (event.clientY - top) / height - 1));
+  const x = -horizontal * Math.min(8, width * 0.009);
+  const y = -vertical * Math.min(5, height * 0.009);
+  // Slight overscan keeps the artwork covering the viewport at full drift.
+  pointerPose = `translate(${x.toFixed(2)}px, ${y.toFixed(2)}px) scale(1.02)`;
+
+  if (!pointerFrame) {
+    pointerFrame = requestAnimationFrame(() => {
+      pointerFrame = 0;
+      pointerRig.style.transform = pointerPose;
+    });
+  }
+}, { passive: true });
+
+viewport.addEventListener("pointerleave", resetPointerView);
+viewport.addEventListener("pointercancel", resetPointerView);
+viewport.addEventListener("pointerdown", event => {
+  if (event.pointerType !== "mouse") resetPointerView();
+}, { passive: true });
+
 function cancelMotion() {
   if (!motion) return;
   const previous = motion;
@@ -182,6 +218,7 @@ function cancelMotion() {
 }
 
 function moveCamera(duration = 0, onArrival = null) {
+  resetPointerView();
   const pose = cameraPose();
   const layers = [[world, pose.world], [honorLayer, pose.honor]];
   const animate = duration > 0 && !reducedMotion();
@@ -226,6 +263,7 @@ function changeView(view, animate = true) {
 }
 
 function refreshMotion() {
+  viewport.dataset.pointerMotion = reducedMotion() ? "off" : "on";
   motionOption.setAttribute("aria-pressed", String(reducedMotion()));
   if (reducedMotion()) detail.removeAttribute("data-focus-animation");
   moveCamera(0, afterMove);
