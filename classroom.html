@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#151c27">
+  <title>平興數資・探索教室</title>
+  <link rel="stylesheet" href="assets/classroom/classroom.css">
+  <script type="module" src="assets/classroom/classroom.js"></script>
+</head>
+<body>
+  <main class="shell">
+    <header class="masthead">
+      <p class="school"><span aria-hidden="true"></span>平興國中數理資優班</p>
+      <h1>探索教室</h1>
+      <p class="intro">從一個問題開始，看看想法如何長成作品。</p>
+    </header>
+
+    <div class="room" id="room">
+      <nav class="views" aria-label="教室視角">
+        <button type="button" data-view="overview" aria-pressed="true">全景</button>
+        <button type="button" data-view="front" aria-pressed="false">前方</button>
+        <button type="button" data-view="work" aria-pressed="false">實作區</button>
+        <button type="button" data-view="wall" aria-pressed="false">成果牆</button>
+      </nav>
+
+      <div class="viewport" id="viewport">
+        <div class="world" id="world">
+          <img class="scene-art" src="assets/classroom/classroom.jpg" width="1672" height="941" alt="暖陽從左側窗戶照進教室，黑板居中，前方是實驗桌和數學桌，右側有榮譽榜、照片牆及作品櫃。">
+          <div id="hotspots"></div>
+        </div>
+      </div>
+
+      <div class="entrances" id="entrances" aria-label="目前視角的物件"></div>
+      <section class="detail" id="detail" aria-labelledby="detail-title" hidden>
+        <div class="detail-copy">
+          <h2 id="detail-title" tabindex="-1"></h2>
+          <p id="detail-copy"></p>
+          <button class="back" id="back" type="button">返回目前視角</button>
+        </div>
+        <div id="honor-closeup" role="img" aria-label="原場景中的榮譽榜，金盃與三面獎牌" hidden></div>
+      </section>
+      <noscript>
+        <p class="no-script">開啟 JavaScript 即可操作教室入口。
+        </p>
+      </noscript>
+    </div>
+    <footer><p>場景樣板 · 榮譽榜特寫</p></footer>
+  </main>
+</body>
+</html>

@@ -1,0 +1,90 @@
+:root {
+  color-scheme: dark;
+  background: #151c27;
+  color: #fff0d6;
+  font-family: "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; }
+button, a { -webkit-tap-highlight-color: transparent; }
+button { color: inherit; font: inherit; cursor: pointer; }
+a { color: #a4dfca; text-underline-offset: .22em; }
+:focus-visible { outline: 3px solid #ffd18b; outline-offset: 3px; }
+
+.shell { width: min(1120px, calc(100% - 56px)); margin: 0 auto; }
+.masthead { padding: 34px 0 23px; }
+.school { display: flex; align-items: center; gap: 10px; margin: 0; color: #aed1c3; font-size: .85rem; letter-spacing: .13em; }
+.school span { width: 9px; height: 9px; background: #e9b677; box-shadow: 3px 3px #754e53; }
+h1 { font-size: clamp(2.65rem, 6vw, 4.5rem); line-height: 1.05; margin: 12px 0; letter-spacing: .06em; }
+.intro { margin: 0; color: #c9c2b9; line-height: 1.6; }
+.room { border: 1px solid #51515b; background: #211e2b; }
+.views { display: flex; flex-wrap: wrap; gap: 6px; padding: 9px; background: #222b34; }
+.views button, .entrances button, .back {
+  min-height: 44px;
+  padding: 8px 15px;
+  border: 1px solid #60696b;
+  background: #252b3a;
+}
+.views button[aria-pressed="true"], .back { color: #182a28; background: #adcfb5; border-color: #adcfb5; font-weight: 700; }
+.views button:hover, .entrances button:hover { border-color: #e8c083; }
+.viewport { position: relative; aspect-ratio: 1672 / 941; overflow: hidden; isolation: isolate; }
+.world { position: absolute; width: 100%; aspect-ratio: 1672 / 941; left: 50%; top: 50%; transform-origin: center; }
+.scene-art, #hotspots { position: absolute; inset: 0; width: 100%; height: 100%; }
+.scene-art { display: block; object-fit: cover; }
+.hotspot {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  padding: 0;
+  background: url(classroom.jpg) center / 100% 100% no-repeat;
+  clip-path: var(--shape);
+  opacity: 0;
+}
+.hotspot:focus-visible { outline: none; }
+.hotspot:hover, .hotspot:focus-visible, .hotspot[aria-expanded="true"] {
+  opacity: 1;
+  filter: brightness(1.2) saturate(1.08);
+  z-index: 1;
+}
+.marker {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.marker .pin { width: 8px; height: 8px; border: 1px solid #ffecb1; background: #344e42; box-shadow: 0 0 0 2px #281e2fcc; transform: rotate(45deg); }
+.marker .label { display: none; position: absolute; left: 16px; padding: 5px 8px; color: #2e2130; background: #f9d89c; font-size: clamp(.75rem, 1.25vw, .95rem); white-space: nowrap; }
+.hotspot[hidden] + .marker { display: none; }
+.hotspot:is(:hover, :focus-visible, [aria-expanded="true"]) + .marker .label { display: block; }
+.entrances { display: none; }
+.detail { display: grid; grid-template-columns: 1fr minmax(0, 1fr); gap: 24px; padding: 25px; border-top: 1px solid #51515b; }
+.detail-copy h2 { margin: 0 0 .4em; }
+.detail-copy p { color: #ddd0c2; max-width: 46ch; line-height: 1.65; }
+#honor-closeup { width: min(100%, 335px); aspect-ratio: 310 / 304; justify-self: center; align-self: start; border: 1px solid #886c5a; background: url(classroom.jpg) 86.9% 27.5% / 539.35% auto no-repeat; }
+.back { margin-top: 16px; }
+footer { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px 18px; align-items: baseline; color: #c9c2b9; font-size: .85rem; padding-bottom: 14px; }
+.no-script { padding: 0 12px; }
+
+@media (max-width: 720px) {
+  .shell { width: calc(100% - 24px); }
+  .masthead { padding-top: 24px; }
+  .viewport { aspect-ratio: 4 / 3; }
+  .viewport[data-view="overview"] { aspect-ratio: 1672 / 941; }
+  .entrances { display: flex; flex-wrap: wrap; gap: 6px; padding: 9px; background: #222b34; border-top: 1px solid #51515b; }
+  .entrances button { padding-inline: 10px; }
+  .entrances button[aria-expanded="true"] { border-color: #ffd18b; background: #3c3d49; }
+  .hotspot, .marker { display: none; }
+  .detail { grid-template-columns: 1fr; gap: 16px; padding: 17px; }
+  #honor-closeup { grid-row: 1; }
+}
+
+@media (max-width: 380px) {
+  .views button { flex: 1; padding-inline: 6px; }
+}
