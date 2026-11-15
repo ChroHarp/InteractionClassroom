@@ -39,10 +39,23 @@
 
       <div class="entrances" id="entrances" aria-label="目前視角的物件"></div>
       <section class="detail" id="detail" aria-labelledby="detail-title" hidden>
-        <div class="detail-copy">
+        <header class="detail-header">
           <h2 id="detail-title" tabindex="-1"></h2>
-          <p id="detail-copy"></p>
           <button class="back" id="back" type="button">返回原視角</button>
+        </header>
+        <p id="detail-copy"></p>
+        <div id="awards-panel" hidden>
+          <form id="awards-filters" class="awards-filters" aria-label="篩選獎項">
+            <label>年份<select name="year" disabled></select></label>
+            <label>類別<select name="category" disabled></select></label>
+            <label class="awards-search">搜尋獎項<input type="search" name="q" maxlength="120" placeholder="作品、競賽或獎項" disabled></label>
+          </form>
+          <div class="awards-summary">
+            <p id="awards-status" role="status"></p>
+            <button id="awards-clear" type="button" hidden>清除篩選</button>
+            <button id="awards-retry" type="button" hidden>重新載入</button>
+          </div>
+          <ol id="awards-results" class="awards-results" aria-label="獎項清單" aria-busy="false"></ol>
         </div>
       </section>
       <noscript>

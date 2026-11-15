@@ -27,4 +27,8 @@
 - 儲存原始「智慧提醒櫃」和首頁異文「智能提醒櫃」，正式名稱待核對。
 - 生物炭的市賽第一名與全國賽第三名為兩個競賽層級。西元競賽年和學年度分開保存。
 
-Phase 2 只顯示已核對的彙總。Phase 4 須取得可配送給前端的正式資料快照及欄位範圍。
+## Phase 4｜前端資料來源
+
+- 資料取自 [PSJH-Honor 公開榮譽牆的已追蹤頁面](https://github.com/ChroHarp/PSJH-Honor/blob/main/index.html) 內嵌的 `AWARDS`（檔案 blob `f550484f170bab033e2d4bab049504deed3edbde`）。共 88 筆，各年份與 Phase 1 本機快照的筆數一致。
+- `awards.json` 僅保存 `year`、`category`（原 `group`）、`competition`、`field`、`project`、`award`（原 `award_text`）。作品名稱合併換行，保留原獎項與賽事階段。
+- 姓名欄位留在來源。匯出前比對參賽者欄位與保留文字欄位，未發現同列姓名相符。更新時沿用此欄位範圍。

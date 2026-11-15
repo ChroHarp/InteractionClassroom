@@ -1,7 +1,9 @@
+import { createAwardsPanel } from "./awards.js";
+
 const objects = [
   { id: "blackboard", mask: "37.2% 25.2%, 65.2% 25.2%, 65.2% 49.6%, 37.2% 49.6%", label: "黑板", x: 241, y: 99, view: "front", description: "從觀察與提問開始，練習思考、探究與實作。" },
   { id: "courses", mask: "65.6% 28.5%, 73.6% 28.5%, 73.6% 46.1%, 65.6% 46.1%", label: "課程佈告欄", x: 333, y: 98, view: "front", description: "七年級啟發試探、八年級探究實作、九年級適性分流。" },
-  { id: "honors", mask: "73.6% 22.1%, 86.6% 22.1%, 86.6% 48.1%, 73.6% 48.1%", label: "榮譽榜", x: 386, y: 94, view: "wall", description: "既有網站的本機資料快照收錄 2016–2026 年共 88 筆獎項紀錄。既有線上來源目前無法開啟。" },
+  { id: "honors", mask: "73.6% 22.1%, 86.6% 22.1%, 86.6% 48.1%, 73.6% 48.1%", label: "榮譽榜", x: 386, y: 94, view: "wall" },
   { id: "experiment", mask: "7.2% 71.5%, 12.8% 64.2%, 15.7% 64.2%, 15.7% 59%, 18.2% 59%, 19.5% 64.1%, 19.9% 57.5%, 24.1% 56.5%, 27.4% 56.5%, 28.1% 64%, 34% 64%, 33.9% 70.6%, 30.3% 89.8%, 7.3% 89.8%", label: "實驗桌", x: 99, y: 193, view: "work", description: "研究從一個問題開始，透過實驗、觀察和紀錄找出證據。" },
   { id: "maker", mask: "72.1% 48.7%, 97.4% 48.7%, 97.4% 84.2%, 73.1% 85.2%, 72.1% 82%", label: "作品櫃", x: 414, y: 170, view: "work", description: "在這裡看看同學如何把生活中的需求做成可操作的原型。" },
   { id: "math", mask: "43.9% 68%, 44.4% 62%, 48.3% 61%, 50.3% 68%, 57% 68%, 57% 62.3%, 60.8% 60.5%, 61.1% 68%, 63.7% 68%, 66.7% 79.1%, 66.5% 80.5%, 65.3% 96%, 39.2% 96%, 39.2% 80.2%, 38.1% 80.2%, 38.1% 77.2%, 41.1% 68%", label: "數學桌", x: 244, y: 203, view: "work", description: "拿起方格紙，先預測圖形怎麼變，再試著說明你發現的規律。" },
@@ -86,7 +88,67 @@ function reducedMotion() {
   return personalMotionPreference ?? motionPreference.matches;
 }
 
-function showObject(object, button) {
+const awardsPanelRoot = document.querySelector("#awards-panel");
+const awardsPanel = createAwardsPanel(awardsPanelRoot, filters => {
+  const route = readHonorsRoute();
+  if (route) history.replaceState(history.state, "", honorsHash(route.view, filters));
+});
+
+function readHonorsRoute() {
+  if (!/^#honors(?:\?|$)/.test(location.hash)) return null;
+  const params = new URLSearchParams(location.hash.slice(8));
+  const view = params.get("view");
+  return {
+    view: Object.hasOwn(cameras, view) ? view : "overview",
+    filters: {
+      year: params.get("year") ?? "",
+      category: params.get("category") ?? "",
+      q: (params.get("q") ?? "").slice(0, 120),
+    },
+  };
+}
+
+function honorsHash(view, filters = {}) {
+  const params = new URLSearchParams();
+  if (view !== "overview") params.set("view", view);
+  for (const key of ["year", "category", "q"]) {
+    if (filters[key]) params.set(key, filters[key]);
+  }
+  return params.size ? `#honors?${params}` : "#honors";
+}
+
+function enterHonorsRoute() {
+  if (!readHonorsRoute()) {
+    awardsPanel.setFilters();
+    history.pushState({ ...history.state, classroomHonors: true }, "", honorsHash(activeView));
+  }
+}
+
+function leaveHonorsRoute() {
+  if (!readHonorsRoute()) return;
+  if (history.state?.classroomHonors) {
+    history.back();
+  } else {
+    history.replaceState(history.state, "", location.pathname + location.search);
+  }
+}
+
+function syncHonorsRoute() {
+  const route = readHonorsRoute();
+  if (!route) {
+    if (trigger?.dataset.object === honors.id) closeDetail(true);
+    return;
+  }
+
+  if (activeView !== route.view) changeView(route.view, false);
+  awardsPanel.setFilters(route.filters);
+  if (trigger?.dataset.object !== honors.id) {
+    const entry = entries.find(item => item.object === honors);
+    showObject(honors, compact.matches ? entry.quickLink : entry.hotspot, true);
+  }
+}
+
+function showObject(object, button, fromRoute = false) {
   const wasHonors = trigger?.dataset.object === honors.id;
   const isHonors = object.id === honors.id;
   trigger = button;
@@ -96,11 +158,15 @@ function showObject(object, button) {
     entry.quickLink.setAttribute("aria-expanded", expanded);
   }
   detailTitle.textContent = object.label;
-  detailCopy.textContent = object.description;
+  detailCopy.hidden = isHonors;
+  detailCopy.textContent = object.description ?? "";
+  awardsPanelRoot.hidden = !isHonors;
   detail.dataset.object = object.id;
 
   if (isHonors) {
     if (wasHonors) return;
+    if (!fromRoute) enterHonorsRoute();
+    awardsPanel.load();
     detail.hidden = true;
     exitFocus.hidden = false;
     hotspotList.inert = true;
@@ -114,6 +180,7 @@ function showObject(object, button) {
 
   exitFocus.hidden = true;
   hotspotList.inert = false;
+  if (wasHonors) leaveHonorsRoute();
   if (wasHonors || motion) moveCamera(wasHonors ? 380 : 0);
   revealDetail(false);
 }
@@ -157,7 +224,7 @@ function cameraPose() {
   const { clientWidth: width, clientHeight: height } = viewport;
   const isHonors = trigger?.dataset.object === honors.id;
   const narrow = compact.matches;
-  const camera = isHonors ? { x: honors.x, y: honors.y, wide: 3, narrow: 3.04 } : cameras[activeView];
+  const camera = isHonors ? { x: honors.x, y: honors.y, wide: 3.46, narrow: 3.04 } : cameras[activeView];
   const scale = narrow ? camera.narrow : camera.wide;
   const worldHeight = width / sceneAspect;
   const maxX = Math.max(0, (width * scale - width) / 2);
@@ -270,10 +337,18 @@ function refreshMotion() {
 }
 
 for (const control of controls) {
-  control.addEventListener("click", () => changeView(control.dataset.view));
+  control.addEventListener("click", () => {
+    changeView(control.dataset.view);
+    leaveHonorsRoute();
+  });
 }
+function closeFromControl() {
+  closeDetail(true);
+  leaveHonorsRoute();
+}
+
 for (const button of [back, exitFocus]) {
-  button.addEventListener("click", () => closeDetail(true));
+  button.addEventListener("click", closeFromControl);
 }
 motionOption.addEventListener("click", () => {
   personalMotionPreference = !reducedMotion();
@@ -281,9 +356,13 @@ motionOption.addEventListener("click", () => {
 });
 motionPreference.addEventListener("change", refreshMotion);
 document.addEventListener("keydown", event => {
-  if (event.key === "Escape" && trigger) closeDetail(true);
+  if (event.key === "Escape" && trigger) closeFromControl();
 });
 new ResizeObserver(() => moveCamera(0, afterMove)).observe(viewport);
 
+window.addEventListener("popstate", syncHonorsRoute);
+window.addEventListener("hashchange", syncHonorsRoute);
+
 changeView("overview", false);
 refreshMotion();
+syncHonorsRoute();
