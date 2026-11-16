@@ -4,10 +4,17 @@
 
 ## 接續位置
 
-- 已完成：Phase 1 核對 13 項來源與 88 筆本機獎項。Phase 2 完成原圖場景、八個熱點及榮譽榜取景。Phase 3 完成榮譽榜同場景推近與返回。Phase 4 榮譽榜清單、篩選、網址往返及錯誤重試已通過瀏覽器驗收。
-- Phase 3 驗證：桌機全景推近、Escape 返回及焦點復原。快速切換後舊面板未重現。減少動態時即時顯示內容與取消視差。360 px 可閱讀，改為 800 px 橫向後仍保留特寫，返回成果牆正常。
-- 素材：榮譽框使用原圖遮罩分層，僅於框後補繪局部牆面，視差位移維持在數個原圖像素內。其餘家具仍在全景圖內。
-- 接續點：Phase 5 先核對課程簡介與既有首頁，再接黑板理念、三年課程及門邊資訊欄。
+- **2026-11-16 四區原生模型重設**：新增 `assets/classroom/scene-props.js`，由 `scene-3d.js` 整合。實驗台改為獨立櫃門、下凹水槽、水龍頭、中空玻璃燒杯、加熱盤、支架與顯微鏡；榮譽榜改為獨立框架與 24 面木牌，原創正面徽章／主題排版（裝飾分類，不代表個別得獎紀錄，實際資料仍由面板提供）；創客櫃改為實體抽屜、把手與六件立體模型（機器人、桁架橋、感測盒、風車、電路板、建築模型），植物為低面數立體葉片；數學桌改為 27 顆分件魔術方塊、幾何體、原創方格作圖紙與平放圓規。以上四區不再載入舊場景裁切貼圖。新增靜態半球光／方向光支援模型明暗，保留按需渲染。
+- **本輪驗證**：`node --check` 通過 `scene-3d.js`、`scene-props.js`。改用本機 Chromium headless 完成四區 1280×720 與 360×640 截圖檢查，調整桌機榮譽榜鏡頭以完整展示 24 面木牌、實驗台鏡頭避開顯微鏡遮擋、圓規改放桌面前方。截圖保存在 `.preview/`。自動截圖有時停在既有底圖淡出過渡期間；本輪未重新測試完整鍵盤／篩選流程，既有紀錄仍屬前版。下一步：以互動瀏覽器確認運鏡定態及減少動態後，再接 Phase 5 內容補齊。
+
+- **場景引擎已從 2D 雙圖變形（Morphing）全面升級為 `Three.js` 真 3D 像素教室（按需渲染）**：
+  - 底層由 [scene-3d.js](assets/classroom/scene-3d.js) 建立單一物理連續的真 3D 教室空間（木紋地板與窗光投影、左窗牆與 2 扇凹槽窗框＋窗外遠景視差層、後黑板牆、右太陽系壁畫牆、6 條雙色立體格柵天花板與圓燈、木門與把手），徹底消除過往兩張 2D 視角圖切換淡入時的五官位移錯位感。
+  - 從現有高品質插畫（`panorama.webp`、`honors-front.webp`、`kiosk-front.webp`）透視校正與去背萃取出 **25 張像素貼圖與立牌**存於 `assets/classroom/textures/`，並將 `Three.js` 核心模組（`three.module.min.js`、`three.core.min.js`）離線內建於 `assets/classroom/vendor/`。
+  - 9 大互動物件已完成 3D 建模與整合：`entry` 門邊公告欄、`kiosk` 微傾立式觸控機台、`experiment` 白色實驗櫃＋檯面去背器材立牌＋窗台盆栽、`blackboard` 銀框微積分黑板＋粉筆槽、`courses` 軟木課程欄、`honors` 銀框溝槽板＋**24 面獨立凸出 3D 木牌**（6 欄 × 4 列）、`photos` 活動照片框、`maker` **真 3D 九宮格彩色創客櫃**（立體隔板／凸出抽屜／格內去背模型／垂墜盆栽），以及 `math` 白色六角桌＋木凳＋真 3D 魔術方塊／四角錐／正十二面體／三角板／圓規／幾何藍圖（搭配中景八角討論桌與講桌）。
+  - 採用 **靜態烘焙光影 + Render-on-Demand（按需渲染）**：僅於運鏡（`570ms`）、滑鼠微視差、熱點懸停高亮或視窗縮放時繪製單幀，靜止查詢資料時完全停止渲染迴圈（0% GPU 佔用）；[classroom.js](assets/classroom/classroom.js) 與 [classroom.css](assets/classroom/classroom.css) 完整保留原有 9 個入口順序、鍵盤 `Tab` / `ArrowLeft` / `ArrowRight` / `Escape`、`#detail` 半透明面板、YouTube 宣傳影片播放器、網址 Hash 路由與榮譽榜篩選功能（2026 年預設 6 筆、全部 88 筆）。
+- **目前驗證狀態與下一步**：
+  - `node --check` 檢查 `scene-3d.js` 與 `classroom.js` 均無誤；瀏覽器驗證（`http://127.0.0.1:8765/classroom.html`，桌機 `1280×720` 與手機 `360×640`）全程 **0 Console Error、0 Page Error、0 Failed Network Request**，並已完成視覺修正與定態複驗（實驗台垂墜盆栽去背與鵝頸水龍頭、創客櫃抽屜裁切與物件落位、木地板平行接縫、右牆護牆板延伸與左窗遠景加寬；桌機版與 `360×640` 行動版榮譽榜皆可完整呈現全 4 列 24 面木牌且不被 `#detail` 面板遮擋）。
+  - 場景引擎就緒後，接續進入 **Phase 5**：核對課程簡介與既有首頁資料，補齊目前仍為簡短說明的物件內容（`blackboard` 學習理念、`courses` 三年課程、`math`、`experiment`、`maker`、`photos`），並可順帶精修實驗台懸掛燒杯／夾具的局部邊緣去背。
 
 ## 分段工作與完成條件
 
@@ -51,3 +58,34 @@
 - 以高斯與法拉第兩張實景為美術參考，融合黑底天花板、藍綠格柵、白色圓燈、太陽系壁畫、水磨石地面與窗光。空景和九個透明物件可分別替換。佈景及物件合計約 564 KiB。
 - 調整九個物件的錨點和前後景深，介面改為靛藍與薄荷綠。新增觸控螢幕，採用原網站「快速認識平興數資」的 YouTube 影片，按播放才載入，離開時移除播放器。
 - Chromium 桌機與手機模擬驗證素材、鏡頭、榮譽篩選、觸控螢幕深連結、播放器載入與離開時卸載。影片由 YouTube 提供，可由面板連到原影片。
+
+## 真 3D 像素教室升級與運鏡校準日誌｜2026-11-16
+
+### 1. 正視榮譽榜生成與 2D 雙圖變形（Morphing）探索
+- 產出高解析正視榮譽榜參考圖 `assets/classroom/room/honors-front.webp`（將榮譽榜轉正為 6 欄 × 4 列共 24 面木牌，並保留右側活動照片與創客櫃），實作「轉正圖面就位 → 延遲 `140ms` 浮現右側半透明 `#detail` 榮譽榜面板」互動流程。
+- 測試於 [honors-camera.js](assets/classroom/honors-camera.js) 建立 2.5D 雙層網格投影（Layer 1 右牆與房間背景＋Layer 2 創客櫃 3D 盒形網格），確認因全域斜視圖（20 面木牌、行星間距不同）與正視圖（24 面木牌）本質為兩張不同透視的 2D 插畫，在 `A → B` 淡入階段仍存在肉眼可見的位移錯位極限。
+
+### 2. 轉向「Three.js 真 3D 結構與家具 + 高解析像素貼圖／去背立牌」架構
+- 決議捨棄兩張 2D 圖變形淡接，改以 **單一真 3D 空間 + 同一台攝影機平滑平移與轉正** 達成 100% 物理連續視角轉換，並以「靜態烘焙光影 ＋ 按需渲染（Render-on-Demand）」維持查閱資料的極速反應與低耗能。
+- 離線引入本機 `three.module.min.js` 與 `three.core.min.js` 至 `assets/classroom/vendor/`。
+- 以 Python（`Pillow`／`numpy`）透視校正與去背腳本（`build_3d_textures.py`）從 `panorama.webp`、`honors-front.webp` 與 `kiosk-front.webp` 萃取 25 張高解析 WebP 素材至 `assets/classroom/textures/`：
+  - 牆面與環境：`right-wall.webp`、`back-wall.webp`、`floor-wood.webp`、`window-outside.webp`。
+  - 展板與機台：`honors-board.webp`、`photos-board.webp`、`courses-board.webp`、`blackboard.webp`、`entry-sign.webp`、`kiosk-screen.webp`。
+  - 家具與去背道具：`experiment-bench.webp`、`experiment-props.webp`、`sill-plant.webp`、`maker-cabinet-front.webp`、`maker-drawer-0..2.webp`、`maker-item-0..5.webp`、`maker-plant.webp`、`math-blueprint.webp`。
+
+### 3. 單一 3D 教室場景建置與介面整合
+- 新增 [scene-3d.js](assets/classroom/scene-3d.js)：
+  - 建構 3D 教室主體（`6.0m × 3.55m × 7.6m`）、木紋地板與窗光疊層、兩扇凹槽窗框（含捲簾與窗外樹景遠景層實現真實視差）、木門與銀把手、6 條薄荷綠／天藍雙色立體天花板格柵與發光圓燈。
+  - 榮譽榜以鋁銀框背板搭配 **24 個獨立 3D 凸出木牌薄盒**（逐片對齊 UV），創客櫃建立 **真 3D 彩色九宮格隔板、凸出抽屜與格內去背模型立牌**，數學桌建立 **真 3D 六角桌＋六張圓凳＋3D 魔術方塊／紫色四角錐／粉紅正十二面體／三角板／圓規／藍圖**，並補齊中景中空八角討論桌、木椅與教師講桌。
+  - 實作 Render-on-Demand（僅在運鏡、滑鼠微視差、熱點懸停／聚焦高亮及視窗縮放時繪製），每次渲染即時將 9 個物件 3D 包圍盒投影同步至 DOM `#hotspots`。
+- 更新 [classroom.js](assets/classroom/classroom.js) 與 [classroom.css](assets/classroom/classroom.css)，保留既有四個分區視角（`overview`、`front`、`work`、`wall`）、9 大物件循環與快捷列、YouTube 播放、Hash 路由及榮譽榜篩選面板。
+
+### 4. 瀏覽器實測與五項細節修正（2026-11-16 下午）
+- 通過 `node --check` 檢查與前兩輪瀏覽器驗證（桌機 `1280×720` 與手機 `360×640`，全程 **0 Console Errors、0 Page Errors、0 Failed Network Requests**，榮譽榜 2026 年 6 筆、全部年份 88 筆正常運作）。
+- 針對實機截圖逐項修正五個視覺與構圖問題：
+  1. **實驗台去背清理**：修正青色與鼠尾草綠牆壁色域判斷，清除垂墜盆栽後方殘留色塊，並完整還原青藍燒杯液體、不鏽鋼水龍頭與高光玻璃瓶身（`experiment-props.webp`）。
+  2. **創客櫃與右牆細節**：緊緻裁切三組抽屜貼圖去除底部木地板與黑邊（`maker-drawer-0..2.webp`），調整格內立牌高度緊貼層板，並將右牆護牆板與星空壁畫平滑延伸至創客櫃右側牆緣（`frontExtRight`）。
+  3. **地板與窗外遠景補齊**：重新透視校正平行木紋地板並以 96px 漸層交叉融合接縫（`floor-wood.webp`），加寬左窗外側遠景平面（`24m × 5.2m`）消除全域視角由二號窗右上角看見黑底空隙的問題。
+  4. **運鏡構圖避讓 `#detail` 面板**：右移 `honors`、`maker`、`blackboard` 桌機攝影機目標點，使所有 24 面木牌與完整櫃體／黑板均落在左側可視區而不被右側浮動面板遮蓋。
+  5. **行動版視角與渲染效能優化**：將 `360×640` 榮譽榜相機移至開闊走道（`x = -2.05` 避開後方實驗台器材遮擋）並調降目標點高度讓全部 4 列 24 面木牌位於底抽面板上方；共用線條材質、上限鎖定 `pixelRatio <= 1.5`、移除運鏡結束重複繪製並修正 `ResizeObserver` 縮放更新，已完成瀏覽器定態截圖複驗（0 Console／Page／Network 錯誤）。
+

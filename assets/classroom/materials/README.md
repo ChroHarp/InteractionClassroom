@@ -1,0 +1,9 @@
+# 原創材質來源
+
+- `solar-system-original.png`：使用內建影像生成工具重新製作。沒有提供或裁切 panorama 原圖；使用文字描述設計風格。原檔 2172 × 724，保留以便後續調整；網站載入同尺寸 WebP 轉檔 `solar-system.webp`。
+- `LOGO-2025.png`：複製自使用者指定的 `D:/OneDrive/Web Design/PSJHGifted/images/LOGO-2025.png`。網站載入 WebP 轉檔 `logo-2025.webp`，不裁切、不拉伸、不改繪品牌圖形。
+- 其他表面由 `scene-materials.js` 原創繪製。舊 `textures/` 不屬於目前材質來源。
+
+## 壁畫生成提示（原文）
+
+Create a production-ready flat rectangular wall mural texture for a stylized 3D Taiwanese gifted science classroom. This is the original 2D artwork to apply to a flat wall, NOT a picture of a room, NOT a perspective render. Very wide horizontal composition, 3:1 aspect ratio. Deep indigo navy starfield, restrained tiny stars, a single gently flowing lavender/blue nebula band along the lower edge. Exactly nine distinct complete planetary discs in one horizontal row, with spacious margins and no overlaps, left to right: small cratered gray Mercury, amber Venus, blue/green Earth, rust-red Mars, large striped orange/cream Jupiter, ochre/lilac Saturn with tilted rings, pale cyan Uranus with subtle rings, deep cobalt Neptune, small beige Pluto. Pluto is included as a historical classroom motif. Every planet exactly once. No sun. Planets rendered as beautiful crisp hand-painted low-poly/pixel-inspired educational illustration with rich jewel colors and subtle polygon facets, consistent light from upper left, bold readable silhouettes. All discs comfortably inside the frame. Planets centered around vertical midpoint, size variation clear, Jupiter and Saturn largest but not dominating. No text, no labels, no furniture, no frames, no wall seams, no architecture, no tiling repeated motifs, no photograph, no perspective, no cropped planets. Background extends to all four edges. Design should remain attractive when stretched into a long narrow wall frieze.

@@ -1,0 +1,4 @@
+.preview/
+debug.log
+*.patch
+node_modules/

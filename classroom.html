@@ -6,6 +6,9 @@
   <meta name="theme-color" content="#14213a">
   <title>平興數資・探索教室</title>
   <link rel="stylesheet" href="assets/classroom/classroom.css">
+  <script>
+    if (location.protocol === "file:") document.documentElement.dataset.localFile = "";
+  </script>
   <script type="module" src="assets/classroom/classroom.js"></script>
 </head>
 <body>
@@ -19,13 +22,12 @@
           <button type="button" data-view="work" aria-pressed="false">實作區</button>
           <button type="button" data-view="wall" aria-pressed="false">成果牆</button>
         </nav>
-        <button class="motion-option" id="motion-option" type="button" aria-pressed="false">減少動態</button>
       </header>
 
       <div class="viewport" id="viewport">
         <div class="pointer-rig" id="pointer-rig">
           <div class="world" id="world">
-            <img class="scene-art" src="assets/classroom/room/empty.webp" width="1672" height="941" alt="參考高斯與法拉第教室繪製的像素空間，黑色天花板上有綠色與藍色的格柵及白色圓燈。">
+            <img class="scene-art" src="assets/classroom/room/scene-fallback.jpg" width="1280" height="720" alt="探索教室真 3D 場景：斜向藍綠天花格柵、行星壁畫、彩色實驗器材、三色創客櫃與顯示平興數資 LOGO 的橫式教學螢幕。">
             <div id="hotspots"></div>
           </div>
         </div>
@@ -46,6 +48,20 @@
           <button class="back" id="back" type="button">返回原視角</button>
         </header>
         <p id="detail-copy"></p>
+        <ul class="news-list" id="news-panel" hidden>
+          <li>
+            <h3>畢業生錄取中大壢中數理資優班</h3>
+            <p>兩位本班畢業生錄取中大壢中數理資優班，其中一位憑全國科展第三名的成績優先錄取。</p>
+          </li>
+          <li>
+            <h3>第 66 屆全國科展佳作</h3>
+            <p>「贏在氣泡點」團隊以自製低動力微細氣泡管探究氣泡生成與應用，榮獲應用科學科（三）佳作。</p>
+          </li>
+          <li>
+            <h3>2026 IEYI 台灣賽兩件作品獲銅牌</h3>
+            <p>「智能提醒櫃」與「自動清洗籠」皆獲銅牌。</p>
+          </li>
+        </ul>
         <div class="video-panel" id="video-panel" hidden>
           <div class="video-stage" id="video-stage">
             <button class="video-play" id="video-play" type="button">
@@ -72,6 +88,10 @@
         <p class="no-script">開啟 JavaScript 即可操作教室入口。
         </p>
       </noscript>
+      <p class="local-file-notice">
+        請透過本機預覽開啟教室，才能使用物件入口。
+        <a href="http://127.0.0.1:8765/classroom.html">開啟本機預覽</a>
+      </p>
     </div>
   </main>
 </body>

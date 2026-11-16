@@ -32,3 +32,7 @@
 - 資料取自 [PSJH-Honor 公開榮譽牆的已追蹤頁面](https://github.com/ChroHarp/PSJH-Honor/blob/main/index.html) 內嵌的 `AWARDS`（檔案 blob `f550484f170bab033e2d4bab049504deed3edbde`）。共 88 筆，各年份與 Phase 1 本機快照的筆數一致。
 - `awards.json` 僅保存 `year`、`category`（原 `group`）、`competition`、`field`、`project`、`award`（原 `award_text`）。作品名稱合併換行，保留原獎項與賽事階段。
 - 姓名欄位留在來源。匯出前比對參賽者欄位與保留文字欄位，未發現同列姓名相符。更新時沿用此欄位範圍。
+
+## 教室最新消息
+
+- 最新消息摘自本機 PSJHGifted 首頁的置頂升學公告、第 66 屆全國科展與 2026 IEYI 台灣賽。公告為本機快照。
