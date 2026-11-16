@@ -3,10 +3,10 @@ import { createAwardsPanel } from "./awards.js";
 const objects = [
   { id: "blackboard", mask: "37.2% 25.2%, 65.2% 25.2%, 65.2% 49.6%, 37.2% 49.6%", label: "黑板", x: 241, y: 99, view: "front", description: "從觀察與提問開始，練習思考、探究與實作。" },
   { id: "courses", mask: "65.6% 28.5%, 73.6% 28.5%, 73.6% 46.1%, 65.6% 46.1%", label: "課程佈告欄", x: 333, y: 98, view: "front", description: "七年級啟發試探、八年級探究實作、九年級適性分流。" },
-  { id: "honors", mask: "73.6% 22.1%, 86.6% 22.1%, 86.6% 48.1%, 73.6% 48.1%", label: "榮譽榜", x: 386, y: 94, view: "wall" },
+  { id: "honors", mask: "73.75% 22.35%, 86.05% 22.35%, 86.05% 47.25%, 73.75% 47.25%", label: "榮譽榜", x: 386, y: 94, view: "wall" },
   { id: "experiment", mask: "7.2% 71.5%, 12.8% 64.2%, 15.7% 64.2%, 15.7% 59%, 18.2% 59%, 19.5% 64.1%, 19.9% 57.5%, 24.1% 56.5%, 27.4% 56.5%, 28.1% 64%, 34% 64%, 33.9% 70.6%, 30.3% 89.8%, 7.3% 89.8%", label: "實驗桌", x: 99, y: 193, view: "work", description: "研究從一個問題開始，透過實驗、觀察和紀錄找出證據。" },
   { id: "maker", mask: "72.1% 48.7%, 97.4% 48.7%, 97.4% 84.2%, 73.1% 85.2%, 72.1% 82%", label: "作品櫃", x: 414, y: 170, view: "work", description: "在這裡看看同學如何把生活中的需求做成可操作的原型。" },
-  { id: "math", mask: "43.9% 68%, 44.4% 62%, 48.3% 61%, 50.3% 68%, 57% 68%, 57% 62.3%, 60.8% 60.5%, 61.1% 68%, 63.7% 68%, 66.7% 79.1%, 66.5% 80.5%, 65.3% 96%, 39.2% 96%, 39.2% 80.2%, 38.1% 80.2%, 38.1% 77.2%, 41.1% 68%", label: "數學桌", x: 244, y: 203, view: "work", description: "拿起方格紙，先預測圖形怎麼變，再試著說明你發現的規律。" },
+  { id: "math", mask: "35.7% 74.3%, 40.4% 68.5%, 43.4% 67%, 43.6% 62.4%, 46.7% 60.4%, 49% 63%, 49.3% 67%, 57.5% 67%, 57% 63.2%, 60.3% 60.4%, 61% 66.9%, 63.4% 68%, 67.4% 74.6%, 65.1% 80.5%, 65.3% 95.8%, 39.2% 96.7%, 39% 80.5%, 35.7% 76.2%", label: "數學桌", x: 244, y: 203, view: "work", description: "拿起方格紙，先預測圖形怎麼變，再試著說明你發現的規律。" },
   { id: "photos", mask: "86.5% 26%, 92.3% 26%, 92.6% 28.5%, 97.7% 28.5%, 97.7% 42.6%, 93.8% 42.6%, 93.4% 47.5%, 88.7% 47.5%, 88.7% 42%, 86.7% 42%", label: "照片牆", x: 424, y: 111, view: "wall", description: "校外參訪、共學與成果分享，都是教室延伸出去的學習現場。" },
   { id: "entry", mask: "6.7% 31%, 15.3% 31%, 15.3% 65.4%, 6.7% 65.4%", label: "門邊資訊欄", x: 52, y: 133, view: "front", description: "這個入口會整理班級資訊與聯絡方式。" },
 ];
@@ -30,7 +30,15 @@ const controls = [...document.querySelectorAll("[data-view]")];
 const compact = matchMedia("(max-width: 720px)");
 
 let activeView = "overview";
-let trigger = null;
+let activeObject = null;
+let originTrigger = null;
+let returning = false;
+let honorsFilters = {};
+const tour = ["entry", "experiment", "blackboard", "math", "courses", "honors", "photos", "maker"]
+  .map(id => objects.find(object => object.id === id));
+const previousObject = document.querySelector("#previous-object");
+const nextObject = document.querySelector("#next-object");
+const sceneStatus = document.querySelector("#scene-status");
 
 function makeButton(object, inScene) {
   const button = document.createElement("button");
@@ -45,11 +53,11 @@ function makeButton(object, inScene) {
   } else {
     button.textContent = object.label;
   }
-  button.addEventListener("click", () => showObject(object, button));
+  button.addEventListener("click", () => openObject(object, button));
   return button;
 }
 
-const entries = objects.map(object => {
+const entries = tour.map(object => {
   const hotspot = makeButton(object, true);
   const quickLink = makeButton(object, false);
   const marker = document.createElement("span");
@@ -90,15 +98,18 @@ function reducedMotion() {
 
 const awardsPanelRoot = document.querySelector("#awards-panel");
 const awardsPanel = createAwardsPanel(awardsPanelRoot, filters => {
-  const route = readHonorsRoute();
-  if (route) history.replaceState(history.state, "", honorsHash(route.view, filters));
+  honorsFilters = filters;
+  if (activeObject === honors) history.replaceState(history.state, "", objectHash(honors));
 });
 
-function readHonorsRoute() {
-  if (!/^#honors(?:\?|$)/.test(location.hash)) return null;
-  const params = new URLSearchParams(location.hash.slice(8));
+function readRoute() {
+  const [id, query] = location.hash.slice(1).split("?");
+  const object = objects.find(item => item.id === id);
+  if (!object) return null;
+  const params = new URLSearchParams(query);
   const view = params.get("view");
   return {
+    object,
     view: Object.hasOwn(cameras, view) ? view : "overview",
     filters: {
       year: params.get("year") ?? "",
@@ -108,55 +119,89 @@ function readHonorsRoute() {
   };
 }
 
-function honorsHash(view, filters = {}) {
+function objectHash(object) {
   const params = new URLSearchParams();
-  if (view !== "overview") params.set("view", view);
-  for (const key of ["year", "category", "q"]) {
-    if (filters[key]) params.set(key, filters[key]);
+  if (activeView !== "overview") params.set("view", activeView);
+  if (object === honors) {
+    for (const key of ["year", "category", "q"]) {
+      if (honorsFilters[key]) params.set(key, honorsFilters[key]);
+    }
   }
-  return params.size ? `#honors?${params}` : "#honors";
+  return params.size ? `#${object.id}?${params}` : `#${object.id}`;
 }
 
-function enterHonorsRoute() {
-  if (!readHonorsRoute()) {
-    awardsPanel.setFilters();
-    history.pushState({ ...history.state, classroomHonors: true }, "", honorsHash(activeView));
+function openObject(object, button, focusDetail = true) {
+  if (returning || object === activeObject) return;
+  if (activeObject) {
+    history.replaceState(history.state, "", objectHash(object));
+  } else {
+    originTrigger = button;
+    honorsFilters = {};
+    history.pushState({ ...history.state, classroomTour: true }, "", objectHash(object));
   }
+  showObject(object, focusDetail);
 }
 
-function leaveHonorsRoute() {
-  if (!readHonorsRoute()) return;
-  if (history.state?.classroomHonors) {
+function leaveRoute() {
+  if (!readRoute() || returning) return;
+  if (history.state?.classroomTour) {
+    returning = true;
     history.back();
   } else {
     history.replaceState(history.state, "", location.pathname + location.search);
   }
 }
 
-function syncHonorsRoute() {
-  const route = readHonorsRoute();
+function syncRoute() {
+  returning = false;
+  const route = readRoute();
   if (!route) {
-    if (trigger?.dataset.object === honors.id) closeDetail(true);
+    closeDetail(true);
     return;
   }
 
   if (activeView !== route.view) changeView(route.view, false);
-  awardsPanel.setFilters(route.filters);
-  if (trigger?.dataset.object !== honors.id) {
-    const entry = entries.find(item => item.object === honors);
-    showObject(honors, compact.matches ? entry.quickLink : entry.hotspot, true);
+  if (route.object === honors) {
+    honorsFilters = route.filters;
+    awardsPanel.setFilters(honorsFilters);
+  }
+  if (activeObject !== route.object) showObject(route.object, true);
+}
+
+function adjacentObject(step) {
+  const index = tour.indexOf(activeObject);
+  if (index === -1) return step === 1 ? tour[0] : tour.at(-1);
+  return tour[(index + step + tour.length) % tour.length];
+}
+
+function updateNavigation() {
+  sceneStatus.textContent = activeObject
+    ? `${activeObject.label} · ${tour.indexOf(activeObject) + 1} / ${tour.length}`
+    : "選擇教室物件";
+  previousObject.setAttribute("aria-label", `上一個物件：${adjacentObject(-1).label}`);
+  nextObject.setAttribute("aria-label", `下一個物件：${adjacentObject(1).label}`);
+  for (const { object, hotspot, quickLink } of entries) {
+    const expanded = String(object === activeObject);
+    hotspot.setAttribute("aria-expanded", expanded);
+    quickLink.setAttribute("aria-expanded", expanded);
+    if (object === activeObject && !quickLink.hidden) {
+      const rail = entranceList.getBoundingClientRect();
+      const item = quickLink.getBoundingClientRect();
+      entranceList.scrollLeft += Math.min(0, item.left - rail.left - 4)
+        + Math.max(0, item.right - rail.right + 4);
+    }
   }
 }
 
-function showObject(object, button, fromRoute = false) {
-  const wasHonors = trigger?.dataset.object === honors.id;
-  const isHonors = object.id === honors.id;
-  trigger = button;
-  for (const entry of entries) {
-    const expanded = String(entry.object === object);
-    entry.hotspot.setAttribute("aria-expanded", expanded);
-    entry.quickLink.setAttribute("aria-expanded", expanded);
-  }
+function showObject(object, focusDetail) {
+  activeObject = object;
+  const isHonors = object === honors;
+  const detailHadFocus = detail.contains(document.activeElement) || document.activeElement === exitFocus;
+  detail.hidden = true;
+  exitFocus.hidden = false;
+  hotspotList.inert = true;
+  if (focusDetail || detailHadFocus) exitFocus.focus({ preventScroll: true });
+  updateNavigation();
   detailTitle.textContent = object.label;
   detailCopy.hidden = isHonors;
   detailCopy.textContent = object.description ?? "";
@@ -164,80 +209,65 @@ function showObject(object, button, fromRoute = false) {
   detail.dataset.object = object.id;
 
   if (isHonors) {
-    if (wasHonors) return;
-    if (!fromRoute) enterHonorsRoute();
+    awardsPanel.setFilters(honorsFilters);
     awardsPanel.load();
-    detail.hidden = true;
-    exitFocus.hidden = false;
-    hotspotList.inert = true;
-    if (button.matches(":focus")) exitFocus.focus({ preventScroll: true });
-    moveCamera(540, () => {
-      exitFocus.hidden = true;
-      revealDetail(true);
-    });
-    return;
   }
-
-  exitFocus.hidden = true;
-  hotspotList.inert = false;
-  if (wasHonors) leaveHonorsRoute();
-  if (wasHonors || motion) moveCamera(wasHonors ? 380 : 0);
-  revealDetail(false);
-}
-
-function revealDetail(animate) {
-  detail.toggleAttribute("data-focus-animation", animate && !reducedMotion());
-  detail.hidden = false;
-  detailTitle.focus({ preventScroll: !compact.matches });
+  moveCamera(570, () => {
+    detail.toggleAttribute("data-focus-animation", !reducedMotion());
+    detail.hidden = false;
+    detail.scrollTop = 0;
+    if (document.activeElement === exitFocus) detailTitle.focus({ preventScroll: true });
+    exitFocus.hidden = true;
+  });
 }
 
 function closeDetail(restoreFocus, returnCamera = true) {
-  if (!trigger) return;
-  const selected = entries.find(entry => entry.object.id === trigger.dataset.object);
-  const wasHonors = selected.object === honors;
-  trigger = null;
+  if (!activeObject) return;
+  const selected = entries.find(entry => entry.object === activeObject);
+  const origin = originTrigger;
+  activeObject = null;
+  originTrigger = null;
   detail.hidden = true;
   exitFocus.hidden = true;
-  for (const entry of entries) {
-    entry.hotspot.setAttribute("aria-expanded", "false");
-    entry.quickLink.setAttribute("aria-expanded", "false");
-  }
+  updateNavigation();
 
+  const activeControl = controls.find(control => control.dataset.view === activeView);
   const finish = () => {
     hotspotList.inert = false;
-    if (restoreFocus) {
-      const origin = compact.matches ? selected.quickLink : selected.hotspot;
-      origin.focus({ preventScroll: !compact.matches });
+    if (restoreFocus && document.activeElement === activeControl) {
+      const fallback = compact.matches ? selected.quickLink : selected.hotspot;
+      const candidate = origin?.getClientRects().length ? origin : fallback;
+      if (candidate.getClientRects().length) candidate.focus({ preventScroll: true });
     }
   };
 
-  if (wasHonors && returnCamera) {
-    const activeControl = controls.find(control => control.dataset.view === activeView);
-    if (restoreFocus) activeControl.focus({ preventScroll: true });
-    moveCamera(390, finish);
-  } else {
-    finish();
-  }
+  if (restoreFocus) activeControl.focus({ preventScroll: true });
+  if (returnCamera) moveCamera(470, finish);
+  else finish();
 }
 
 function cameraPose() {
   const { clientWidth: width, clientHeight: height } = viewport;
-  const isHonors = trigger?.dataset.object === honors.id;
   const narrow = compact.matches;
-  const camera = isHonors ? { x: honors.x, y: honors.y, wide: 3.46, narrow: 3.04 } : cameras[activeView];
-  const scale = narrow ? camera.narrow : camera.wide;
-  const worldHeight = width / sceneAspect;
-  const maxX = Math.max(0, (width * scale - width) / 2);
+  const camera = activeObject ?? cameras[activeView];
+  const isHonors = activeObject === honors;
+  const worldWidth = world.offsetWidth;
+  const worldHeight = worldWidth / sceneAspect;
+  const scale = activeObject
+    ? (narrow ? (isHonors ? 1.45 : 1.21) : (isHonors ? 2.76 : 2.12))
+    : (narrow ? camera.narrow : camera.wide);
+  const maxX = Math.max(0, (worldWidth * scale - width) / 2);
   const maxY = Math.max(0, (worldHeight * scale - height) / 2);
-  const anchorX = isHonors && !narrow ? 0.36 : 0.5;
-  const x = (0.5 - camera.x / sceneWidth) * width * scale + (anchorX - 0.5) * width;
-  const y = (0.5 - camera.y / sceneHeight) * worldHeight * scale;
+  const anchorX = activeObject && !narrow ? 0.34 : 0.5;
+  const anchorY = activeObject && narrow ? 0.32 : 0.5;
+  const x = (0.5 - camera.x / sceneWidth) * worldWidth * scale + (anchorX - 0.5) * width;
+  const y = (0.5 - camera.y / sceneHeight) * worldHeight * scale + (anchorY - 0.5) * height;
   const offsetX = Math.max(-maxX, Math.min(maxX, x));
   const offsetY = Math.max(-maxY, Math.min(maxY, y));
 
   return {
-    world: `translate(${offsetX - width / 2}px, ${offsetY - worldHeight / 2}px) scale(${scale})`,
-    honor: isHonors && !reducedMotion() ? "translate(0.12%, -0.16%)" : "translate(0%, 0%)",
+    world: `translate(${offsetX - worldWidth / 2}px, ${offsetY - worldHeight / 2}px) scale(${scale})`,
+    honor: isHonors && !reducedMotion() ? "translate(0.07%, -0.07%)" : "translate(0%, 0%)",
   };
 }
 
@@ -339,30 +369,42 @@ function refreshMotion() {
 for (const control of controls) {
   control.addEventListener("click", () => {
     changeView(control.dataset.view);
-    leaveHonorsRoute();
+    leaveRoute();
   });
 }
 function closeFromControl() {
   closeDetail(true);
-  leaveHonorsRoute();
+  leaveRoute();
 }
 
 for (const button of [back, exitFocus]) {
   button.addEventListener("click", closeFromControl);
 }
+previousObject.addEventListener("click", () => openObject(adjacentObject(-1), previousObject, false));
+nextObject.addEventListener("click", () => openObject(adjacentObject(1), nextObject, false));
 motionOption.addEventListener("click", () => {
   personalMotionPreference = !reducedMotion();
   refreshMotion();
 });
 motionPreference.addEventListener("change", refreshMotion);
 document.addEventListener("keydown", event => {
-  if (event.key === "Escape" && trigger) closeFromControl();
+  if (event.key === "Escape" && activeObject) closeFromControl();
+  if (!activeObject || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey ||
+      event.target.matches("input, select, textarea, [contenteditable]")) return;
+  const step = { ArrowLeft: -1, ArrowRight: 1 }[event.key];
+  if (step) {
+    event.preventDefault();
+    const arrow = step === -1 ? previousObject : nextObject;
+    arrow.focus({ preventScroll: true });
+    openObject(adjacentObject(step), arrow, false);
+  }
 });
 new ResizeObserver(() => moveCamera(0, afterMove)).observe(viewport);
 
-window.addEventListener("popstate", syncHonorsRoute);
-window.addEventListener("hashchange", syncHonorsRoute);
+window.addEventListener("popstate", syncRoute);
+window.addEventListener("hashchange", syncRoute);
 
 changeView("overview", false);
+updateNavigation();
 refreshMotion();
-syncHonorsRoute();
+syncRoute();
