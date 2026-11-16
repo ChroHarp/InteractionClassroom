@@ -1,101 +1,73 @@
 import * as THREE from "./vendor/three.module.min.js";
 import { honors, experiment, maker, mathProps } from "./scene-props.js";
-import { surfaces } from "./scene-materials.js";
+import { surfaces, PALETTE, celMaterial, basicMaterial, addInkEdges } from "./scene-materials.js";
 import { environment } from "./scene-environment.js";
 
 const ROOM = { w: 6.0, h: 3.55, d: 7.6 }; // x in [-3, 3], y in [0, 3.55], z in [-3.8, 3.8]
 const HALF_W = ROOM.w / 2;
 const HALF_D = ROOM.d / 2;
-const EDGE_COLOR = 0x24324c;
 
-// Normalized camera targets & positions for each partition view and each object focus.
+// Camera positions & targets for overview/zone views and each object focus.
 const VIEW_POSES = {
   overview: {
-    pos: [-.8, 2.10, 7.9], target: [.2, 1.50, -.70], fov: 53,
-    compact: { pos: [-1.7, 2.30, 8.80], target: [0.0, 1.40, -0.55], fov: 52 },
+    pos: [-0.65, 2.06, 7.55], target: [0.15, 1.48, -0.65], fov: 50,
+    compact: { pos: [-1.45, 2.24, 8.45], target: [0.05, 1.36, -0.55], fov: 52 },
   },
-  front: { pos: [0.88, 1.56, 6.25], target: [-0.72, 1.52, -1.95], fov: 45 },
-  work: { pos: [-0.14, 1.94, 6.18], target: [0.06, 0.88, 0.80], fov: 46 },
-  wall: { pos: [-2.28, 1.80, 1.85], target: [3.00, 1.78, 0.65], fov: 44 },
+  front: {
+    pos: [0.55, 1.68, 6.55], target: [-0.15, 1.54, -2.20], fov: 48,
+    compact: { pos: [0.35, 1.68, 6.65], target: [-0.15, 1.44, -2.20], fov: 52 },
+  },
+  work: {
+    pos: [-0.05, 2.06, 7.15], target: [0.02, 0.98, 0.55], fov: 48,
+    compact: { pos: [-0.05, 2.18, 7.55], target: [0.02, 0.88, 0.55], fov: 52 },
+  },
+  wall: {
+    pos: [-2.45, 1.82, 1.60], target: [3.00, 1.82, 0.45], fov: 46,
+    compact: { pos: [-2.45, 1.72, 1.45], target: [3.00, 1.62, 0.45], fov: 50 },
+  },
 };
 
 const OBJECT_POSES = {
   entry: {
-    pos: [-1.05, 1.86, 2.78], target: [-2.94, 1.86, 2.78], fov: 40,
-    compact: { pos: [-0.75, 1.66, 3.26], target: [-2.94, 1.55, 3.26], fov: 46 },
+    pos: [-0.82, 1.84, 0.85], target: [-2.96, 1.84, 0.72], fov: 42,
+    compact: { pos: [-0.45, 1.48, 1.15], target: [-2.96, 0.92, 1.15], fov: 50 },
   },
   kiosk: {
-    pos: [.35, 1.62, 2.25], target: [-2.64, 1.29, 2.15], fov: 44,
-    compact: { pos: [.80, 1.65, 2.75], target: [-2.64, .75, 2.75], fov: 46 },
+    pos: [-0.20, 1.32, 3.25], target: [-1.85, 1.02, 1.98], fov: 44,
+    compact: { pos: [-0.45, 1.36, 3.45], target: [-2.18, 0.65, 2.32], fov: 48 },
   },
   experiment: {
-    pos: [1.05, 1.75, -1.70], target: [-2.64, 1.06, -1.70], fov: 46,
-    compact: { pos: [1.05, 1.22, -0.55], target: [-2.64, 0.56, -0.55], fov: 50 },
+    pos: [-0.45, 1.48, -1.55], target: [-2.62, 0.96, -1.78], fov: 48,
+    compact: { pos: [-0.35, 1.28, -1.42], target: [-2.62, 0.56, -1.42], fov: 52 },
   },
   blackboard: {
-    pos: [0.92, 1.88, 0.15], target: [0.92, 1.88, -3.77], fov: 42,
-    compact: { pos: [-0.35, 1.75, 0.45], target: [-0.35, 1.25, -3.77], fov: 48 },
+    pos: [0.60, 1.86, 0.15], target: [0.35, 1.86, -3.74], fov: 42,
+    compact: { pos: [-0.58, 1.72, 0.55], target: [-0.58, 1.24, -3.74], fov: 48 },
   },
   math: {
-    pos: [-0.42, 1.72, 4.90], target: [0.82, 0.68, 2.52], fov: 38,
-    compact: { pos: [0.22, 1.78, 5.15], target: [0.42, 0.35, 2.55], fov: 44 },
+    pos: [-0.25, 1.66, 4.35], target: [0.85, 0.68, 1.95], fov: 40,
+    compact: { pos: [0.38, 1.72, 4.55], target: [0.38, 0.35, 1.95], fov: 46 },
   },
   courses: {
-    pos: [2.42, 1.76, -1.25], target: [2.42, 1.76, -3.77], fov: 38,
-    compact: { pos: [1.95, 1.66, -0.95], target: [1.95, 1.28, -3.77], fov: 44 },
+    pos: [2.32, 1.84, -1.05], target: [2.25, 1.84, -3.74], fov: 40,
+    compact: { pos: [1.82, 1.72, -0.85], target: [1.82, 1.32, -3.74], fov: 46 },
   },
   honors: {
-    pos: [-1.72, 1.84, 1.18], target: [3.00, 1.84, 0.90], fov: 44,
-    landscape: { pos: [-2.7,1.9,1.8], target: [3,1.4,1.8], fov: 50 },
-    compact: { pos: [-2.05, 1.48, -0.15], target: [3.00, 0.05, -0.15], fov: 46 },
+    pos: [-1.75, 1.82, 0.40], target: [2.92, 1.82, 0.22], fov: 44,
+    landscape: { pos: [-2.45, 1.85, 0.65], target: [2.92, 1.48, 0.50], fov: 48 },
+    compact: { pos: [-2.15, 1.52, -0.65], target: [2.92, 0.78, -0.65], fov: 48 },
   },
   photos: {
-    pos: [-0.55, 2.08, 3.22], target: [3.00, 2.08, 3.22], fov: 38,
-    compact: { pos: [-0.85, 1.92, 2.74], target: [3.00, 1.48, 2.74], fov: 44 },
+    pos: [-0.35, 2.02, 2.80], target: [2.92, 2.02, 2.72], fov: 38,
+    compact: { pos: [-0.70, 1.86, 2.25], target: [2.92, 1.45, 2.25], fov: 46 },
   },
   maker: {
-    pos: [-0.08, 0.96, 3.68], target: [2.76, 0.76, 3.45], fov: 40,
-    compact: { pos: [.4, 1.4, 4.2], target: [2.68, .38, 2.76], fov: 50 },
+    pos: [0.68, 1.12, 2.68], target: [2.66, 0.74, 2.58], fov: 46,
+    compact: { pos: [0.68, 1.22, 2.25], target: [2.66, 0.42, 2.25], fov: 52 },
   },
 };
 
 const textureUrl = name => new URL(`materials/${name}`, import.meta.url).href;
-
-const SHARED_EDGE_MATS = new Map();
-
-function addInkEdges(mesh, threshold = 24, opacity = 0.45, color = EDGE_COLOR) {
-  const key = `${threshold}|${opacity}|${color}`;
-  let mat = SHARED_EDGE_MATS.get(key);
-  if (!mat) {
-    mat = new THREE.LineBasicMaterial({ color, transparent: opacity < 1, opacity });
-    SHARED_EDGE_MATS.set(key, mat);
-  }
-  const geo = new THREE.EdgesGeometry(mesh.geometry, threshold);
-  const lines = new THREE.LineSegments(geo, mat);
-  lines.userData.isEdgeLine = true;
-  mesh.add(lines);
-  return lines;
-}
-
-function makeSolidMat(color, opts = {}) {
-  return new THREE.MeshBasicMaterial({ color, ...opts });
-}
-
-function makeCanvasTexture(width, height, drawFn, repeatX = 1, repeatY = 1) {
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-  drawFn(canvas.getContext("2d"), width, height);
-  const tex = new THREE.CanvasTexture(canvas);
-  tex.colorSpace = THREE.SRGBColorSpace;
-  tex.anisotropy = 4;
-  if (repeatX !== 1 || repeatY !== 1) {
-    tex.wrapS = THREE.RepeatWrapping;
-    tex.wrapT = THREE.RepeatWrapping;
-    tex.repeat.set(repeatX, repeatY);
-  }
-  return tex;
-}
 
 function loadTextures(renderer, names, onUpdate) {
   const loader = new THREE.TextureLoader();
@@ -118,98 +90,125 @@ function loadTextures(renderer, names, onUpdate) {
 }
 
 function createWallBoard(tex, width, height, depth, edgeColor) {
-  const sideMat = makeSolidMat(edgeColor);
-  const frontMat = makeSolidMat(0xffffff, { map: tex });
+  const sideMat = celMaterial(edgeColor);
+  const frontMat = basicMaterial(0xffffff, { map: tex });
   const mats = [sideMat, sideMat, sideMat, sideMat, frontMat, sideMat];
   const mesh = new THREE.Mesh(new THREE.BoxGeometry(width, height, depth), mats);
-  addInkEdges(mesh, 25, 0.5);
-  const trim = new THREE.MeshLambertMaterial({color:edgeColor});
-  for (const x of [-width/2,width/2]) {
-    const rail=new THREE.Mesh(new THREE.BoxGeometry(.035,height+.035,depth+.018),trim);rail.position.x=x;mesh.add(rail);
+  addInkEdges(mesh, 25, 0.42);
+  for (const x of [-width / 2, width / 2]) {
+    const rail = new THREE.Mesh(
+      new THREE.BoxGeometry(0.036, height + 0.036, depth + 0.018),
+      celMaterial(edgeColor)
+    );
+    rail.position.x = x;
+    addInkEdges(rail, 25, 0.36);
+    mesh.add(rail);
   }
-  for (const y of [-height/2,height/2]) {
-    const rail=new THREE.Mesh(new THREE.BoxGeometry(width,.035,depth+.018),trim);rail.position.y=y;mesh.add(rail);
+  for (const y of [-height / 2, height / 2]) {
+    const rail = new THREE.Mesh(
+      new THREE.BoxGeometry(width, 0.036, depth + 0.018),
+      celMaterial(edgeColor)
+    );
+    rail.position.y = y;
+    addInkEdges(rail, 25, 0.36);
+    mesh.add(rail);
   }
   return mesh;
 }
 
 function createKiosk(textures) {
   const group = new THREE.Group();
-  const addBox = (w,h,d,color,x,y,z) => {
-    const m = new THREE.Mesh(new THREE.BoxGeometry(w,h,d),new THREE.MeshLambertMaterial({color}));
-    m.position.set(x,y,z);group.add(m);addInkEdges(m,25,.22);return m;
+  const addBox = (w, h, d, color, x, y, z, parent = group) => {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), celMaterial(color));
+    m.position.set(x, y, z);
+    addInkEdges(m, 25, 0.36);
+    parent.add(m);
+    return m;
   };
-  addBox(.66,.075,.46,0x384c65,0,.038,0);
-  addBox(.16,.98,.12,0x425c73,0,.56,-.025);
-  addBox(1.42,.86,.10,0x68dcba,0,1.39,0);
-  addBox(1.33,.77,.018,0x23394d,0,1.39,.058);
-  // The active display is exactly 16:9. The square logo is contained, never stretched.
-  const display = new THREE.Mesh(new THREE.PlaneGeometry(1.28,.72),makeSolidMat(0xffffff));
-  display.position.set(0,1.39,.069);group.add(display);
-  const logo = new THREE.Mesh(new THREE.PlaneGeometry(.64,.64),makeSolidMat(0xffffff,{map:textures['logo-2025.webp']}));
-  logo.position.set(-.29,1.39,.071);group.add(logo);
-  const title = makeCanvasTexture(560,640,(c,w,h)=>{
-    c.fillStyle='#ffffff';c.fillRect(0,0,w,h);c.fillStyle='#244e65';c.textAlign='center';c.font='bold 53px sans-serif';c.fillText('平興數資',w/2,225);
-    c.fillStyle='#729789';c.font='25px sans-serif';c.fillText('GIFTED CLASS',w/2,285);
-    c.fillStyle='#d8a329';c.fillRect(140,330,280,4);c.fillStyle='#355c6a';c.font='29px sans-serif';c.fillText('探索・實作・創造',w/2,405);
-  });
-  const lettering=new THREE.Mesh(new THREE.PlaneGeometry(.56,.64),makeSolidMat(0xffffff,{map:title}));lettering.position.set(.33,1.39,.071);group.add(lettering);
-  addBox(.13,.018,.006,0x2f5d62,0,.985,.054);
-  group.position.set(-2.64,0,2.75);group.rotation.y=Math.PI/2-.34;return group;
+
+  // Base stand & slanted support column
+  addBox(0.68, 0.065, 0.44, 0x384e66, 0, 0.0325, 0);
+  addBox(0.56, 0.035, 0.34, 0x4b6884, 0, 0.08, 0);
+  addBox(0.16, 0.68, 0.11, 0x425c73, 0, 0.42, -0.02);
+
+  // Landscape 16:9 interactive screen pivot (compact height so wall board behind stays unobstructed)
+  const screenPivot = new THREE.Group();
+  screenPivot.position.set(0, 1.04, 0.02);
+  screenPivot.rotation.x = -0.22;
+  group.add(screenPivot);
+
+  addBox(1.16, 0.72, 0.085, PALETTE.mint, 0, 0, 0, screenPivot);
+  addBox(1.07, 0.63, 0.022, 0x1e3348, 0, 0, 0.044, screenPivot);
+
+  // Active 16:9 landscape display + contained square LOGO on left card
+  const display = new THREE.Mesh(
+    new THREE.PlaneGeometry(1.02, 0.574),
+    basicMaterial(0xffffff, { map: textures["kiosk-screen.webp"] })
+  );
+  display.position.set(0, 0, 0.056);
+  screenPivot.add(display);
+
+  const logo = new THREE.Mesh(
+    new THREE.PlaneGeometry(0.32, 0.32),
+    basicMaterial(0xffffff, { map: textures["logo-2025.webp"], transparent: true })
+  );
+  logo.position.set(-0.275, 0, 0.058);
+  screenPivot.add(logo);
+
+  // Small bottom power/sensor button pill on bezel
+  addBox(0.11, 0.016, 0.008, 0x2c5c63, 0, -0.33, 0.045, screenPivot);
+
+  group.position.set(-2.18, 0, 2.32);
+  group.rotation.y = 0.98;
+  return group;
 }
 
 function createPodium() {
   const group = new THREE.Group();
-  const oakTex = makeCanvasTexture(128, 128, (ctx, w, h) => {
-    ctx.fillStyle = "#c98b55";
-    ctx.fillRect(0, 0, w, h);
-    ctx.fillStyle = "#b87944";
-    for (let y = 0; y < h; y += 16) ctx.fillRect(0, y, w, 2);
-    ctx.strokeStyle = "#342725";
-    ctx.lineWidth = 4;
-    ctx.strokeRect(2, 2, w - 4, h - 4);
-  });
-  const oakMat = makeSolidMat(0xffffff, { map: oakTex });
-  const body = new THREE.Mesh(new THREE.BoxGeometry(0.92, 0.92, 0.54), oakMat);
-  body.position.set(0, 0.46, 0);
-  addInkEdges(body, 25, 0.45);
+  const body = new THREE.Mesh(new THREE.BoxGeometry(0.90, 0.90, 0.52), celMaterial(PALETTE.oak));
+  body.position.set(0, 0.45, 0);
+  addInkEdges(body, 25, 0.42);
   group.add(body);
 
-  const top = new THREE.Mesh(new THREE.BoxGeometry(0.98, 0.06, 0.60), makeSolidMat(0xdca06a));
-  top.position.set(0, 0.94, 0);
-  addInkEdges(top, 25, 0.45);
+  const frontPanel = new THREE.Mesh(new THREE.BoxGeometry(0.76, 0.72, 0.02), celMaterial(PALETTE.oakDark));
+  frontPanel.position.set(0, 0.46, 0.265);
+  addInkEdges(frontPanel, 25, 0.35);
+  group.add(frontPanel);
+
+  const top = new THREE.Mesh(new THREE.BoxGeometry(0.96, 0.055, 0.58), celMaterial(PALETTE.oakLight));
+  top.position.set(0, 0.925, 0);
+  addInkEdges(top, 25, 0.42);
   group.add(top);
 
-  // Computer monitor & pencil cup on podium
-  const monBase = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.03, 0.14), makeSolidMat(0x3a4760));
-  monBase.position.set(-0.12, 0.985, 0);
-  const monNeck = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.12, 0.04), makeSolidMat(0x2a3548));
-  monNeck.position.set(-0.12, 1.05, -0.02);
-  const monScreen = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.28, 0.04), makeSolidMat(0x232d40));
-  monScreen.position.set(-0.12, 1.18, 0);
-  addInkEdges(monScreen, 25, 0.6);
-  const cup = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.035, 0.10, 8), makeSolidMat(0x52c4a0));
-  cup.position.set(0.28, 1.02, 0.06);
-  addInkEdges(cup, 25, 0.45);
+  const monBase = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.03, 0.14), celMaterial(0x3a4760));
+  monBase.position.set(-0.12, 0.965, 0);
+  const monNeck = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.12, 0.04), celMaterial(0x2a3548));
+  monNeck.position.set(-0.12, 1.03, -0.02);
+  const monScreen = new THREE.Mesh(new THREE.BoxGeometry(0.40, 0.26, 0.04), celMaterial(0x232d40));
+  monScreen.position.set(-0.12, 1.16, 0);
+  addInkEdges(monScreen, 25, 0.5);
+  const cup = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.035, 0.10, 10), celMaterial(0x52c4a0));
+  cup.position.set(0.28, 1.00, 0.06);
+  addInkEdges(cup, 25, 0.4);
   group.add(monBase, monNeck, monScreen, cup);
 
-  group.position.set(-2.22, 0, -3.28);
+  group.position.set(-2.25, 0, -3.22);
   group.rotation.y = 0.28;
   return group;
 }
 
 function createDiscussionTable() {
   const group = new THREE.Group();
-  const radiusOuter = .96;
-  const radiusInner = .40;
+  const radiusOuter = 0.92;
+  const radiusInner = 0.38;
 
-  // Hollow octagonal tabletop extruded from 2D Shape
   const outerShape = new THREE.Shape();
   for (let i = 0; i < 8; i++) {
     const a = (i / 8) * Math.PI * 2 + Math.PI / 8;
     const px = Math.cos(a) * radiusOuter;
     const py = Math.sin(a) * radiusOuter;
-    if (i === 0) outerShape.moveTo(px, py); else outerShape.lineTo(px, py);
+    if (i === 0) outerShape.moveTo(px, py);
+    else outerShape.lineTo(px, py);
   }
   outerShape.closePath();
   const holePath = new THREE.Path();
@@ -217,24 +216,23 @@ function createDiscussionTable() {
     const a = (i / 8) * Math.PI * 2 + Math.PI / 8;
     const px = Math.cos(a) * radiusInner;
     const py = Math.sin(a) * radiusInner;
-    if (i === 0) holePath.moveTo(px, py); else holePath.lineTo(px, py);
+    if (i === 0) holePath.moveTo(px, py);
+    else holePath.lineTo(px, py);
   }
   holePath.closePath();
   outerShape.holes.push(holePath);
 
   const topGeo = new THREE.ExtrudeGeometry(outerShape, { depth: 0.055, bevelEnabled: false });
   topGeo.rotateX(-Math.PI / 2);
-  const topMesh = new THREE.Mesh(topGeo, [makeSolidMat(0x7be8be), makeSolidMat(0xb97c46)]);
+  const topMesh = new THREE.Mesh(topGeo, [celMaterial(0x7be8be), celMaterial(PALETTE.oak)]);
   topMesh.position.y = 0.72;
-  addInkEdges(topMesh, 22, 0.45);
+  addInkEdges(topMesh, 22, 0.42);
   group.add(topMesh);
 
-  // Wooden legs & wooden chairs spaced around the octagon
-  const legMat = makeSolidMat(0xb67a44);
   for (let i = 0; i < 8; i++) {
     const a = (i / 8) * Math.PI * 2 + Math.PI / 8;
-    const leg = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.72, 0.06), legMat);
-    leg.position.set(Math.cos(a) * 0.80, 0.36, Math.sin(a) * 0.80);
+    const leg = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.72, 0.06), celMaterial(PALETTE.oakDark));
+    leg.position.set(Math.cos(a) * 0.76, 0.36, Math.sin(a) * 0.76);
     addInkEdges(leg, 25, 0.4);
     group.add(leg);
   }
@@ -242,77 +240,81 @@ function createDiscussionTable() {
   for (let i = 0; i < 6; i++) {
     const a = (i / 6) * Math.PI * 2 + 0.25;
     const chair = new THREE.Group();
-    const seat = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.045, 0.34), makeSolidMat(0xc4864f));
+    const seat = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.045, 0.33), celMaterial(PALETTE.oak));
     seat.position.y = 0.44;
-    addInkEdges(seat, 25, 0.45);
-    const back = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.38, 0.045), makeSolidMat(0xb67741));
-    back.position.set(0, 0.65, 0.15);
-    addInkEdges(back, 25, 0.45);
+    addInkEdges(seat, 25, 0.42);
+    const back = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.38, 0.045), celMaterial(PALETTE.oakDark));
+    back.position.set(0, 0.65, 0.145);
+    addInkEdges(back, 25, 0.42);
     chair.add(seat, back);
-    for (const lx of [-0.14, 0.14]) {
-      for (const lz of [-0.13, 0.13]) {
-        const cl = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.44, 0.04), legMat);
+    for (const lx of [-0.135, 0.135]) {
+      for (const lz of [-0.125, 0.125]) {
+        const cl = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.44, 0.04), celMaterial(PALETTE.oakDark));
         cl.position.set(lx, 0.22, lz);
+        addInkEdges(cl, 25, 0.3);
         chair.add(cl);
       }
     }
-    chair.position.set(Math.cos(a) * 1.09, 0, Math.sin(a) * 1.09);
+    chair.position.set(Math.cos(a) * 1.05, 0, Math.sin(a) * 1.05);
     chair.rotation.y = -a + Math.PI / 2;
     group.add(chair);
   }
 
-  group.position.set(-0.08, 0, -1.55);
+  group.position.set(-0.15, 0, -1.15);
   return group;
 }
 
-function createMathTable(textures) {
+function createMathTable() {
   const group = new THREE.Group();
-  const radius = 1.02;
+  const radius = 1.00;
   const tableY = 0.72;
 
-  // White hexagonal tabletop + slate beveled rim
-  const rim = new THREE.Mesh(new THREE.CylinderGeometry(radius + 0.03, radius, 0.06, 6), makeSolidMat(0xc9935c));
+  const rim = new THREE.Mesh(
+    new THREE.CylinderGeometry(radius + 0.03, radius, 0.06, 6),
+    celMaterial(PALETTE.oak)
+  );
   rim.position.y = tableY - 0.03;
-  addInkEdges(rim, 22, 0.5);
+  addInkEdges(rim, 22, 0.45);
   group.add(rim);
 
-  const top = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, 0.02, 6), makeSolidMat(0xf4f8ff));
+  const top = new THREE.Mesh(
+    new THREE.CylinderGeometry(radius, radius, 0.02, 6),
+    celMaterial(0xf5f8ff)
+  );
   top.position.y = tableY;
-  addInkEdges(top, 22, 0.4);
+  addInkEdges(top, 22, 0.38);
   group.add(top);
 
-  // 6 oak table legs + 6 mint-cushion stools around the hexagon
-  const oakMat = makeSolidMat(0xc5854f);
-  const cushionMat = makeSolidMat(0x5fd9ae);
   for (let i = 0; i < 6; i++) {
     const a = (i / 6) * Math.PI * 2;
-    const leg = new THREE.Mesh(new THREE.BoxGeometry(0.075, tableY - 0.04, 0.075), oakMat);
+    const leg = new THREE.Mesh(new THREE.BoxGeometry(0.075, tableY - 0.04, 0.075), celMaterial(PALETTE.oak));
     leg.position.set(Math.cos(a) * (radius - 0.14), (tableY - 0.04) / 2, Math.sin(a) * (radius - 0.14));
-    addInkEdges(leg, 25, 0.45);
+    addInkEdges(leg, 25, 0.42);
     group.add(leg);
 
     const sa = a + Math.PI / 6;
     const stool = new THREE.Group();
-    const pad = new THREE.Mesh(new THREE.CylinderGeometry(0.20, 0.21, 0.06, 14), cushionMat);
+    const pad = new THREE.Mesh(new THREE.CylinderGeometry(0.195, 0.205, 0.06, 14), celMaterial(PALETTE.mint));
     pad.position.y = 0.44;
-    addInkEdges(pad, 28, 0.4);
-    const seatRing = new THREE.Mesh(new THREE.CylinderGeometry(0.21, 0.20, 0.04, 14), oakMat);
+    addInkEdges(pad, 28, 0.36);
+    const seatRing = new THREE.Mesh(new THREE.CylinderGeometry(0.205, 0.195, 0.04, 14), celMaterial(PALETTE.oak));
     seatRing.position.y = 0.40;
+    addInkEdges(seatRing, 28, 0.36);
     stool.add(pad, seatRing);
     for (let k = 0; k < 4; k++) {
       const la = (k / 4) * Math.PI * 2 + Math.PI / 4;
-      const sl = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.40, 0.04), oakMat);
-      sl.position.set(Math.cos(la) * 0.13, 0.20, Math.sin(la) * 0.13);
+      const sl = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.40, 0.04), celMaterial(PALETTE.oakDark));
+      sl.position.set(Math.cos(la) * 0.125, 0.20, Math.sin(la) * 0.125);
       addInkEdges(sl, 25, 0.35);
       stool.add(sl);
     }
-    stool.position.set(Math.cos(sa) * 1.15, 0, Math.sin(sa) * 1.15);
+    stool.position.set(Math.cos(sa) * 1.13, 0, Math.sin(sa) * 1.13);
     group.add(stool);
   }
 
   mathProps(group, tableY);
 
-  group.position.set(0.42, 0, 2.55);
+  group.position.set(0.38, 0, 1.95);
   return group;
 }
 
@@ -361,19 +363,26 @@ export function createClassroomScene3D(viewport, objects) {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x10182a);
-  scene.add(new THREE.HemisphereLight(0xf2f8ff, 0xb0c3d0, 2.2));
-  const propLight = new THREE.DirectionalLight(0xfff2de, 1.5);
-  propLight.position.set(-3, 6, 4);
+  scene.background = new THREE.Color(0x142138);
+  scene.add(new THREE.HemisphereLight(0xf6f9ff, 0xb8cade, 2.15));
+  const propLight = new THREE.DirectionalLight(0xfff3de, 1.45);
+  propLight.position.set(-3.5, 5.5, 4.0);
   scene.add(propLight);
 
-  const camera = new THREE.PerspectiveCamera(46, 16 / 9, 0.1, 45);
-  const textures = { ...surfaces(), ...loadTextures(renderer, [
-    "solar-system.webp", "logo-2025.webp",
-  ], allLoaded => {
-    if (allLoaded) canvas.dataset.ready = "true";
-    requestRender();
-  }) };
+  const camera = new THREE.PerspectiveCamera(50, 16 / 9, 0.1, 45);
+  const textures = {
+    ...surfaces(),
+    ...loadTextures(renderer, [
+      "logo-2025.webp",
+      "activity-1.jpg",
+      "activity-2.jpg",
+      "activity-3.jpg",
+      "activity-4.jpg",
+    ], allLoaded => {
+      if (allLoaded) canvas.dataset.ready = "true";
+      requestRender();
+    }),
+  };
 
   environment(scene, textures);
   scene.add(createDiscussionTable());
@@ -382,38 +391,62 @@ export function createClassroomScene3D(viewport, objects) {
   // Build interactive 3D object groups mapped to object IDs
   const interactiveGroups = {
     entry: (() => {
-      const g = createWallBoard(textures["entry-sign.webp"], 0.42, 0.84, 0.04, 0x263759);
+      const g = createWallBoard(textures["entry-sign.webp"], 1.34, 0.94, 0.045, 0x4fc4b0);
       g.rotation.y = Math.PI / 2;
-      g.position.set(-HALF_W + 0.09, 1.92, 3.26);
+      g.position.set(-HALF_W + 0.04, 1.84, 1.15);
       return g;
     })(),
     kiosk: createKiosk(textures),
     experiment: experiment(),
     blackboard: (() => {
       const g = new THREE.Group();
-      const board = createWallBoard(textures["blackboard.webp"], 2.66, 1.48, 0.05, 0x9aaec4);
+      const board = createWallBoard(textures["blackboard.webp"], 2.56, 1.44, 0.05, 0x9aaec4);
       g.add(board);
-      const tray = new THREE.Mesh(new THREE.BoxGeometry(2.58, 0.045, 0.11), makeSolidMat(0x9fb2c7));
-      tray.position.set(0, -0.73, 0.045);
-      addInkEdges(tray, 25, 0.45);
+      const tray = new THREE.Mesh(new THREE.BoxGeometry(2.48, 0.045, 0.11), celMaterial(0x9fb2c7));
+      tray.position.set(0, -0.71, 0.045);
+      addInkEdges(tray, 25, 0.42);
       g.add(tray);
-      for (const [x,color] of [[-.75,0xe9bb68],[.0,0xf7f2d9],[.38,0x81cfdf]]) {
-        const chalk=new THREE.Mesh(new THREE.BoxGeometry(.22,.035,.035),makeSolidMat(color));chalk.position.set(x,-.69,.07);g.add(chalk);
+      for (const [x, color] of [[-0.75, 0xe9bb68], [0.0, 0xf7f2d9], [0.38, 0x81cfdf]]) {
+        const chalk = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.035, 0.035), celMaterial(color));
+        chalk.position.set(x, -0.67, 0.07);
+        addInkEdges(chalk, 25, 0.35);
+        g.add(chalk);
       }
-      g.position.set(-0.35, 1.88, -HALF_D + 0.03);
+      g.position.set(-0.58, 1.86, -HALF_D + 0.06);
       return g;
     })(),
-    math: createMathTable(textures),
+    math: createMathTable(),
     courses: (() => {
-      const g = createWallBoard(textures["courses-board.webp"], 1.24, 1.02, 0.045, 0x5cc5b0);
-      g.position.set(1.95, 1.76, -HALF_D + 0.025);
+      const g = new THREE.Group();
+      const board = createWallBoard(textures["courses-board.webp"], 1.68, 1.18, 0.045, 0x5cc5b0);
+      g.add(board);
+      const ledge = new THREE.Mesh(new THREE.BoxGeometry(1.62, 0.035, 0.09), celMaterial(0x9fb2c7));
+      ledge.position.set(0, -0.58, 0.04);
+      addInkEdges(ledge, 25, 0.4);
+      g.add(ledge);
+      g.position.set(1.82, 1.84, -HALF_D + 0.06);
       return g;
     })(),
     honors: honors(),
     photos: (() => {
-      const g = createWallBoard(textures["photos-board.webp"], 1.76, 1.18, 0.045, 0x9ecbf0);
+      const g = new THREE.Group();
+      g.add(createWallBoard(textures["photos-board.webp"], 1.72, 1.04, 0.045, 0x86c0ec));
+      const slots = [
+        [-0.403, 0.176, "activity-1.jpg"],
+        [0.403, 0.176, "activity-2.jpg"],
+        [-0.403, -0.275, "activity-3.jpg"],
+        [0.403, -0.275, "activity-4.jpg"],
+      ];
+      for (const [px, py, key] of slots) {
+        const photo = new THREE.Mesh(
+          new THREE.PlaneGeometry(0.651, 0.366),
+          basicMaterial(0xffffff, { map: textures[key] })
+        );
+        photo.position.set(px, py, 0.025);
+        g.add(photo);
+      }
       g.rotation.y = -Math.PI / 2;
-      g.position.set(HALF_W - 0.025, 2.08, 2.74);
+      g.position.set(HALF_W - 0.08, 2.02, 2.25);
       return g;
     })(),
     maker: maker(),
@@ -422,14 +455,14 @@ export function createClassroomScene3D(viewport, objects) {
   const boundsById = {};
   const centerOffsets = {
     entry: [0, 0, 0],
-    kiosk: [0, 1.22, 0],
-    experiment: [0, 0.88, 0],
+    kiosk: [0, 0.92, 0],
+    experiment: [0, 0.82, 0],
     blackboard: [0, 0, 0],
     math: [0, 0.56, 0],
     courses: [0, 0, 0],
     honors: [0, 0, 0],
     photos: [0, 0, 0],
-    maker: [0, 0.72, 0],
+    maker: [0, 0.70, 0],
   };
 
   for (const [id, group] of Object.entries(interactiveGroups)) {
@@ -455,8 +488,10 @@ export function createClassroomScene3D(viewport, objects) {
     const width = viewport.clientWidth || 1280;
     const height = viewport.clientHeight || 720;
     const aspect = width / Math.max(1, height);
-    if (canvas.width !== Math.round(width * renderer.getPixelRatio()) ||
-        canvas.height !== Math.round(height * renderer.getPixelRatio())) {
+    if (
+      canvas.width !== Math.round(width * renderer.getPixelRatio()) ||
+      canvas.height !== Math.round(height * renderer.getPixelRatio())
+    ) {
       renderer.setSize(width, height, false);
     }
 
@@ -464,11 +499,11 @@ export function createClassroomScene3D(viewport, objects) {
     camera.fov = computeAdjustedFov(currentFov, aspect);
     camera.updateProjectionMatrix();
 
-    // Apply subtle 3D eye offset along camera local right/up axes for genuine parallax depth
     const lookDir = new THREE.Vector3().subVectors(currentTarget, currentPos).normalize();
     const rightAxis = new THREE.Vector3().crossVectors(lookDir, camera.up).normalize();
     const upAxis = new THREE.Vector3().crossVectors(rightAxis, lookDir).normalize();
-    const shiftedPos = currentPos.clone()
+    const shiftedPos = currentPos
+      .clone()
       .addScaledVector(rightAxis, pointerOffset.x * 0.14)
       .addScaledVector(upAxis, pointerOffset.y * 0.08);
 
@@ -487,7 +522,6 @@ export function createClassroomScene3D(viewport, objects) {
 
     if (tween) {
       const raw = tween.duration > 0 ? Math.min(1, Math.max(0, (now - tween.start) / tween.duration)) : 1;
-      // Smooth quintic cubic-bezier feel matching classroom.js easing
       const t = raw < 1 ? 1 - Math.pow(1 - raw, 3) : 1;
       currentPos.lerpVectors(tween.fromPos, tween.toPos, t);
       currentTarget.lerpVectors(tween.fromTarget, tween.toTarget, t);
@@ -556,8 +590,8 @@ export function createClassroomScene3D(viewport, objects) {
         width: boxW,
         height: boxH,
         depth: cProj.z,
-        titleX: boxW > 0 ? THREE.MathUtils.clamp((cx - clLeft) / boxW * 100, 18, 82) : 50,
-        titleY: boxH > 0 ? THREE.MathUtils.clamp((cy - clTop) / boxH * 100, 18, 82) : 50,
+        titleX: boxW > 0 ? THREE.MathUtils.clamp(((cx - clLeft) / boxW) * 100, 18, 82) : 50,
+        titleY: boxH > 0 ? THREE.MathUtils.clamp(((cy - clTop) / boxH) * 100, 18, 82) : 50,
       };
     }
     return out;

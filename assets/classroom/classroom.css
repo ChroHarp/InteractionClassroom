@@ -268,11 +268,12 @@ button { color: inherit; font: inherit; cursor: pointer; }
   overscroll-behavior: contain;
   scrollbar-gutter: stable;
   padding: 0 clamp(15px, 1.8vw, 26px) 18px;
-  border: 1px solid #a8e3ff83;
+  border: 1px solid rgba(185, 236, 255, 0.48);
   border-radius: 17px;
-  background: linear-gradient(140deg, #365e83c4, #15263de6 52%, #222742e6);
-  backdrop-filter: blur(19px) saturate(.85);
-  box-shadow: 0 20px 55px #15223883, inset 0 1px #d9f6ff50;
+  background: rgba(18, 36, 58, 0.44);
+  backdrop-filter: blur(14px) saturate(1.1);
+  box-shadow: 0 16px 40px rgba(10, 20, 38, 0.28), inset 0 1px rgba(230, 250, 255, 0.36);
+  text-shadow: 0 1px 2px rgba(8, 16, 30, 0.55);
 }
 .detail[data-focus-animation] { animation: reveal-detail 230ms ease-out both; }
 @keyframes reveal-detail {
@@ -287,10 +288,15 @@ button { color: inherit; font: inherit; cursor: pointer; }
   align-items: center;
   justify-content: space-between;
   gap: 6px 10px;
-  padding-block: 12px;
-  border-bottom: 1px solid var(--line);
-  background: #21344de8;
-  backdrop-filter: blur(14px);
+  margin-inline: calc(-1 * clamp(15px, 1.8vw, 26px));
+  padding: 12px clamp(15px, 1.8vw, 26px);
+  border-bottom: 1px solid rgba(163, 219, 255, 0.28);
+  background: transparent;
+  transition: background-color 140ms ease-out;
+}
+.detail.is-scrolled .detail-header {
+  background: rgba(16, 31, 52, 0.72);
+  backdrop-filter: blur(12px);
 }
 .detail-header h2 { color: #ccfff1; font-size: clamp(1.12rem, 2.3vw, 1.75rem); margin: 0; }
 #detail-copy { margin: 14px 0 0; color: #e6f3ff; line-height: 1.7; }
@@ -343,11 +349,11 @@ button { color: inherit; font: inherit; cursor: pointer; }
 .awards-filters input, .awards-filters select {
   min-width: 0;
   min-height: 44px;
-  padding: 8px;
-  border: 1px solid #80a5c5;
-  border-radius: 0;
+  padding: 8px 10px;
+  border: 1px solid rgba(163, 219, 255, 0.42);
+  border-radius: 8px;
   color: #f0f8ff;
-  background: #172841dc;
+  background: rgba(18, 36, 58, 0.42);
   font: inherit;
 }
 .awards-summary { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; min-height: 44px; color: #ddedff; font-size: .9rem; }
@@ -377,8 +383,6 @@ button { color: inherit; font: inherit; cursor: pointer; }
 .detail[data-object="honors"] {
   inset-inline-end: clamp(14px, 2.2vw, 36px);
   width: min(35%, 420px);
-  background: linear-gradient(140deg, #2a4d70a6, #122136c6 54%, #1c223bc6);
-  backdrop-filter: blur(18px) saturate(1.06);
 }
 @media (max-width: 720px) {
   .detail[data-object="honors"] {
@@ -401,9 +405,9 @@ button { color: inherit; font: inherit; cursor: pointer; }
   overflow: hidden;
   aspect-ratio: 16 / 9;
   margin-block: 14px 8px;
-  border: 1px solid #97deff80;
+  border: 1px solid rgba(151, 222, 255, 0.45);
   border-radius: 9px;
-  background: radial-gradient(ellipse at 36% 30%, #215f82, #172344 66%, #121b34);
+  background: rgba(18, 36, 58, 0.32);
 }
 .video-stage iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 .video-play {

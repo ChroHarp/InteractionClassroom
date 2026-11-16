@@ -41,6 +41,9 @@ viewport.dataset.scene = "3d";
 const hotspotList = document.querySelector("#hotspots");
 const entranceList = document.querySelector("#entrances");
 const detail = document.querySelector("#detail");
+detail.addEventListener("scroll", () => {
+  detail.classList.toggle("is-scrolled", detail.scrollTop > 4);
+}, { passive: true });
 const detailTitle = document.querySelector("#detail-title");
 const detailCopy = document.querySelector("#detail-copy");
 const back = document.querySelector("#back");
@@ -289,6 +292,7 @@ function showObject(object, focusDetail) {
       detail.toggleAttribute("data-focus-animation", !reducedMotion());
       detail.hidden = false;
       detail.scrollTop = 0;
+      detail.classList.remove("is-scrolled");
       if (document.activeElement === exitFocus) detailTitle.focus({ preventScroll: true });
       exitFocus.hidden = true;
     };

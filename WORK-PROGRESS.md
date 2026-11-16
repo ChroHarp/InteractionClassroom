@@ -4,8 +4,22 @@
 
 ## 接續位置
 
+- **2026-11-17 榮譽榜實景木牌建模、活動相片貼入與面板透明化調整**：
+  - **榮譽榜還原實景造型（`scene-props.js`）**：依教室實景相片將 24 面榮譽木牌重建模為`ExtrudeGeometry` 拱頂造型木牌，牌面呈現 `Math & Science / PSJH` 雷雕樺木紋理與雙金屬掛勾，並以細銀分隔條將淺灰橫紋溝槽板分為左 2 欄與右 4 欄（維持裝飾分類保護學生個資，實際 88 筆得獎資料由面板提供）。
+  - **活動相片牆實照貼入（`scene-materials.js`、`scene-3d.js`）**：納入 `materials/activity-1.jpg` 至 `activity-4.jpg` 四張活動照片，將 `photos` 展板改為 2×2 的 16:9 彩色相框排版並原比例貼入顯示。
+  - **資訊面板透明化與窗框防閃動（`classroom.css`、`classroom.js`、`scene-environment.js`）**：統一 `.detail` 為單層淺霧面毛玻璃（`rgba(18, 36, 58, 0.44)`），`.detail-header` 於未捲動時維持完全透明，僅於捲動（`is-scrolled`）時補上半透明底色；同步修正左牆雙窗框、窗櫺與捲簾共面重疊造成的閃動（Z-fighting）。
+  - **驗證**：`node --check` 通過所有模組；無頭 Chromium（`1280×720` 與 `360×640`）實測 0 Console / Page / Network Error，並已更新 `assets/classroom/room/scene-fallback.jpg` 與 [SCENE-DESIGN.md](assets/classroom/SCENE-DESIGN.md)。
+  - **下一步**：先以互動瀏覽器確認鍵盤導覽、`prefers-reduced-motion` 與榮譽榜篩選流程在重構後無回歸問題，接著進入 **Phase 5**，依 Notion 規劃與 [SOURCES.md](data/classroom/SOURCES.md) 補齊 `blackboard`、`courses`、`experiment`、`maker`、`math`、`photos` 的完整閱讀與實作內容。
+
+- **2026-11-16 統一賽璐璐插畫風 3D 重構與空間配置調整**：
+  - 停止 2D 原圖裁切貼圖混合方案，將 `scene-materials.js`、`scene-environment.js`、`scene-props.js` 與 `scene-3d.js` 全面統一為 **3 階暖調賽璐璐著色（`MeshToonMaterial`）＋ 一致墨線描邊（`addInkEdges`）＋ 高解析正面正交 Canvas 插畫貼圖**。
+  - **16:9 橫式觸控機台（`kiosk`）**：改為橫式機身並移至左前方開闊處（`x = -2.18, z = 2.32`），整體高度降為約 `1.40 m` 不遮擋後方牆面，螢幕顯示 `logo-2025.webp` 與播放按鈕圖示。
+  - **三年課程課表重設計（`courses`）＋ 最新消息軟木公佈欄（`entry`）**：將後牆黑板右側展板重設計為對照真實課程地圖（`course_map.png`）的「平興數資・三年課程規劃表」（含 7/8/9 年級三欄與課程節數色塊）；將 `entry` 移至左牆中前段完整室內牆面（`x = -2.96, z = 1.15`），改為青綠框軟木塞公佈欄搭配 4 張釘針公告，不再貼在門邊極緣處。
+  - **左牆緊湊雙窗與右牆連續星空壁畫**：將左牆窗戶縮減為實驗台上方的兩扇緊湊窗戶（`z = -2.62 ~ -0.08`），對齊放置 `experiment` 實驗台（`z = -1.42`）與地板日照光斑；右牆與後牆轉角改採 Canvas 繪製無縫連續星空與九星體壁畫（`solar-back.webp` + `solar-right.webp`），榮譽榜底板同步改回銀灰橫紋溝槽板配 24 面立體橡木牌。
+  - **本輪驗證與預覽產出**：`node --check` 通過 `scene-3d.js`、`scene-environment.js`、`scene-materials.js`、`scene-props.js` 與 `classroom.js`；以無頭 Chromium（`1280×720` 與 `360×640`）實測全景、4 個分區視角與 9 個物件特寫（含細調避開前景桌椅與圓規遮擋），全程 **0 Console Errors、0 Page Errors、0 Failed Network Requests**，已同步重產 `assets/classroom/room/scene-fallback.jpg` 與更新 [SCENE-DESIGN.md](assets/classroom/SCENE-DESIGN.md)。
+  - **下一步**：先以互動瀏覽器確認鍵盤導覽、`prefers-reduced-motion` 與榮譽榜篩選流程在重構後無回歸問題，接著進入 **Phase 5**，依 Notion 規劃與 [SOURCES.md](data/classroom/SOURCES.md) 補齊 `blackboard`、`courses`、`experiment`、`maker`、`math`、`photos` 的完整閱讀與實作內容。
+
 - **2026-11-16 四區原生模型重設**：新增 `assets/classroom/scene-props.js`，由 `scene-3d.js` 整合。實驗台改為獨立櫃門、下凹水槽、水龍頭、中空玻璃燒杯、加熱盤、支架與顯微鏡；榮譽榜改為獨立框架與 24 面木牌，原創正面徽章／主題排版（裝飾分類，不代表個別得獎紀錄，實際資料仍由面板提供）；創客櫃改為實體抽屜、把手與六件立體模型（機器人、桁架橋、感測盒、風車、電路板、建築模型），植物為低面數立體葉片；數學桌改為 27 顆分件魔術方塊、幾何體、原創方格作圖紙與平放圓規。以上四區不再載入舊場景裁切貼圖。新增靜態半球光／方向光支援模型明暗，保留按需渲染。
-- **本輪驗證**：`node --check` 通過 `scene-3d.js`、`scene-props.js`。改用本機 Chromium headless 完成四區 1280×720 與 360×640 截圖檢查，調整桌機榮譽榜鏡頭以完整展示 24 面木牌、實驗台鏡頭避開顯微鏡遮擋、圓規改放桌面前方。截圖保存在 `.preview/`。自動截圖有時停在既有底圖淡出過渡期間；本輪未重新測試完整鍵盤／篩選流程，既有紀錄仍屬前版。下一步：以互動瀏覽器確認運鏡定態及減少動態後，再接 Phase 5 內容補齊。
 
 - **場景引擎已從 2D 雙圖變形（Morphing）全面升級為 `Three.js` 真 3D 像素教室（按需渲染）**：
   - 底層由 [scene-3d.js](assets/classroom/scene-3d.js) 建立單一物理連續的真 3D 教室空間（木紋地板與窗光投影、左窗牆與 2 扇凹槽窗框＋窗外遠景視差層、後黑板牆、右太陽系壁畫牆、6 條雙色立體格柵天花板與圓燈、木門與把手），徹底消除過往兩張 2D 視角圖切換淡入時的五官位移錯位感。
