@@ -77,11 +77,12 @@ export function createAwardsPanel(panel, onFilters) {
     const unavailable = records === null;
     for (const field of [year, category, search]) field.disabled = unavailable || records.length === 0;
     retry.hidden = !failed;
+    retry.setAttribute("aria-disabled", String(loading));
     clear.hidden = unavailable || !(year.value !== "all" || category.value || filters.q);
     results.setAttribute("aria-busy", String(loading));
 
     if (unavailable) {
-      status.textContent = failed ? "無法載入獎項資料，請重新載入。" : "正在載入獎項資料…";
+      status.textContent = loading ? "正在載入獎項資料…" : "無法載入獎項資料，請重新載入。";
       results.replaceChildren();
       return;
     }
@@ -108,7 +109,6 @@ export function createAwardsPanel(panel, onFilters) {
 
   function load() {
     if (request || records !== null) return;
-    failed = false;
     request = fetch(awardsUrl, { cache: "no-cache" })
       .then(response => {
         if (!response.ok) throw new Error(`Awards request failed: ${response.status}`);
@@ -125,8 +125,11 @@ export function createAwardsPanel(panel, onFilters) {
       })
       .catch(() => { failed = true; })
       .finally(() => {
+        const restoreRetryFocus = records !== null && document.activeElement === retry;
+        if (records !== null) failed = false;
         request = null;
         render();
+        if (restoreRetryFocus) (year.disabled ? status : year).focus();
       });
     render();
   }
