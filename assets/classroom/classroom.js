@@ -1,21 +1,26 @@
 import { createAwardsPanel } from "./awards.js";
 
+// Bounds use percentages of the empty room: left, top, width, height.
 const objects = [
-  { id: "blackboard", mask: "37.2% 25.2%, 65.2% 25.2%, 65.2% 49.6%, 37.2% 49.6%", label: "黑板", x: 241, y: 99, view: "front", description: "從觀察與提問開始，練習思考、探究與實作。" },
-  { id: "courses", mask: "65.6% 28.5%, 73.6% 28.5%, 73.6% 46.1%, 65.6% 46.1%", label: "課程佈告欄", x: 333, y: 98, view: "front", description: "七年級啟發試探、八年級探究實作、九年級適性分流。" },
-  { id: "honors", mask: "73.75% 22.35%, 86.05% 22.35%, 86.05% 47.25%, 73.75% 47.25%", label: "榮譽榜", x: 386, y: 94, view: "wall" },
-  { id: "experiment", mask: "7.2% 71.5%, 12.8% 64.2%, 15.7% 64.2%, 15.7% 59%, 18.2% 59%, 19.5% 64.1%, 19.9% 57.5%, 24.1% 56.5%, 27.4% 56.5%, 28.1% 64%, 34% 64%, 33.9% 70.6%, 30.3% 89.8%, 7.3% 89.8%", label: "實驗桌", x: 99, y: 193, view: "work", description: "研究從一個問題開始，透過實驗、觀察和紀錄找出證據。" },
-  { id: "maker", mask: "72.1% 48.7%, 97.4% 48.7%, 97.4% 84.2%, 73.1% 85.2%, 72.1% 82%", label: "作品櫃", x: 414, y: 170, view: "work", description: "在這裡看看同學如何把生活中的需求做成可操作的原型。" },
-  { id: "math", mask: "35.7% 74.3%, 40.4% 68.5%, 43.4% 67%, 43.6% 62.4%, 46.7% 60.4%, 49% 63%, 49.3% 67%, 57.5% 67%, 57% 63.2%, 60.3% 60.4%, 61% 66.9%, 63.4% 68%, 67.4% 74.6%, 65.1% 80.5%, 65.3% 95.8%, 39.2% 96.7%, 39% 80.5%, 35.7% 76.2%", label: "數學桌", x: 244, y: 203, view: "work", description: "拿起方格紙，先預測圖形怎麼變，再試著說明你發現的規律。" },
-  { id: "photos", mask: "86.5% 26%, 92.3% 26%, 92.6% 28.5%, 97.7% 28.5%, 97.7% 42.6%, 93.8% 42.6%, 93.4% 47.5%, 88.7% 47.5%, 88.7% 42%, 86.7% 42%", label: "照片牆", x: 424, y: 111, view: "wall", description: "校外參訪、共學與成果分享，都是教室延伸出去的學習現場。" },
-  { id: "entry", mask: "6.7% 31%, 15.3% 31%, 15.3% 65.4%, 6.7% 65.4%", label: "門邊資訊欄", x: 52, y: 133, view: "front", description: "這個入口會整理班級資訊與聯絡方式。" },
-];
+  { id: "entry", label: "門邊資訊欄", view: "front", bounds: [13.7, 43, 5.1, 17], description: "這個入口會整理班級資訊與聯絡方式。" },
+  { id: "kiosk", label: "觸控螢幕", view: "front", bounds: [18.5, 43, 12, 34] },
+  { id: "experiment", label: "實驗桌", view: "work", bounds: [8, 65, 32, 29], description: "研究從一個問題開始，透過實驗、觀察和紀錄找出證據。" },
+  { id: "blackboard", label: "黑板", view: "front", bounds: [29, 39, 25, 21], description: "從觀察與提問開始，練習思考、探究與實作。" },
+  { id: "math", label: "數學桌", view: "work", bounds: [39, 60, 33, 37], description: "拿起方格紙，先預測圖形怎麼變，再試著說明你發現的規律。" },
+  { id: "courses", label: "課程佈告欄", view: "front", bounds: [56, 43, 11, 17], description: "七年級啟發試探、八年級探究實作、九年級適性分流。" },
+  { id: "honors", label: "榮譽榜", view: "wall", bounds: [69, 43, 15, 16] },
+  { id: "photos", label: "照片牆", view: "wall", bounds: [85, 45, 12, 15], description: "校外參訪、共學與成果分享，都是教室延伸出去的學習現場。" },
+  { id: "maker", label: "作品櫃", view: "work", bounds: [75, 61, 21, 29], description: "在這裡看看同學如何把生活中的需求做成可操作的原型。" },
+].map(object => {
+  const [left, top, width, height] = object.bounds;
+  return { ...object, x: left + width / 2, y: top + height / 2 };
+});
 
 const cameras = {
-  overview: { x: 240, y: 135, wide: 1, narrow: 1 },
-  front: { x: 210, y: 97, wide: 1.12, narrow: 1.26 },
-  work: { x: 246, y: 179, wide: 1.12, narrow: 1.23 },
-  wall: { x: 381, y: 109, wide: 1.45, narrow: 1.62 },
+  overview: { x: 50, y: 50, wide: 1, narrow: 1 },
+  front: { x: 31, y: 45, wide: 1.18, narrow: 1.18 },
+  work: { x: 47, y: 66, wide: 1.14, narrow: 1.18 },
+  wall: { x: 81, y: 49, wide: 1.38, narrow: 1.27 },
 };
 
 const viewport = document.querySelector("#viewport");
@@ -34,8 +39,6 @@ let activeObject = null;
 let originTrigger = null;
 let returning = false;
 let honorsFilters = {};
-const tour = ["entry", "experiment", "blackboard", "math", "courses", "honors", "photos", "maker"]
-  .map(id => objects.find(object => object.id === id));
 const previousObject = document.querySelector("#previous-object");
 const nextObject = document.querySelector("#next-object");
 const sceneStatus = document.querySelector("#scene-status");
@@ -48,7 +51,13 @@ function makeButton(object, inScene) {
   button.setAttribute("aria-expanded", "false");
   if (inScene) {
     button.className = "hotspot";
-    button.style.setProperty("--shape", `polygon(${object.mask})`);
+    const [left, top, width, height] = object.bounds;
+    Object.assign(button.style, { left: `${left}%`, top: `${top}%`, width: `${width}%`, height: `${height}%` });
+    const art = document.createElement("img");
+    art.src = new URL(`./room/${object.id}.webp`, import.meta.url);
+    art.alt = "";
+    art.draggable = false;
+    button.append(art);
     button.setAttribute("aria-label", object.label);
   } else {
     button.textContent = object.label;
@@ -57,14 +66,14 @@ function makeButton(object, inScene) {
   return button;
 }
 
-const entries = tour.map(object => {
+const entries = objects.map(object => {
   const hotspot = makeButton(object, true);
   const quickLink = makeButton(object, false);
   const marker = document.createElement("span");
   marker.className = "marker";
   marker.setAttribute("aria-hidden", "true");
-  marker.style.setProperty("--x", `${100 * object.x / 480}%`);
-  marker.style.setProperty("--y", `${100 * object.y / 270}%`);
+  marker.style.setProperty("--x", `${object.x}%`);
+  marker.style.setProperty("--y", `${object.y}%`);
   const pin = document.createElement("span");
   pin.className = "pin";
   const label = document.createElement("span");
@@ -79,14 +88,9 @@ const entries = tour.map(object => {
 const honors = objects.find(object => object.id === "honors");
 const exitFocus = document.querySelector("#exit-focus");
 const motionOption = document.querySelector("#motion-option");
-const honorLayer = document.querySelector("#honor-layer");
 const motionPreference = matchMedia("(prefers-reduced-motion: reduce)");
-const sceneWidth = 480;
-const sceneHeight = 270;
 const sceneAspect = 1672 / 941;
 const easing = "cubic-bezier(.2, .75, .22, 1)";
-
-world.style.setProperty("--honor-shape", `polygon(${honors.mask})`);
 
 let personalMotionPreference;
 let motion = null;
@@ -101,6 +105,28 @@ const awardsPanel = createAwardsPanel(awardsPanelRoot, filters => {
   honorsFilters = filters;
   if (activeObject === honors) history.replaceState(history.state, "", objectHash(honors));
 });
+
+const videoPanel = document.querySelector("#video-panel");
+const videoStage = document.querySelector("#video-stage");
+const videoPlay = document.querySelector("#video-play");
+const promoVideo = "https://www.youtube.com/embed/z2E_-Mv_YxM?autoplay=1&playsinline=1";
+
+videoPlay.addEventListener("click", () => {
+  const player = document.createElement("iframe");
+  player.src = promoVideo;
+  player.title = "平興數資宣傳影片";
+  player.allow = "accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen";
+  player.allowFullscreen = true;
+  player.referrerPolicy = "strict-origin-when-cross-origin";
+  videoStage.append(player);
+  videoPlay.hidden = true;
+  player.focus({ preventScroll: true });
+});
+
+function stopVideo() {
+  videoStage.querySelector("iframe")?.remove();
+  videoPlay.hidden = false;
+}
 
 function readRoute() {
   const [id, query] = location.hash.slice(1).split("?");
@@ -169,14 +195,14 @@ function syncRoute() {
 }
 
 function adjacentObject(step) {
-  const index = tour.indexOf(activeObject);
-  if (index === -1) return step === 1 ? tour[0] : tour.at(-1);
-  return tour[(index + step + tour.length) % tour.length];
+  const index = objects.indexOf(activeObject);
+  if (index === -1) return step === 1 ? objects[0] : objects.at(-1);
+  return objects[(index + step + objects.length) % objects.length];
 }
 
 function updateNavigation() {
   sceneStatus.textContent = activeObject
-    ? `${activeObject.label} · ${tour.indexOf(activeObject) + 1} / ${tour.length}`
+    ? `${activeObject.label} · ${objects.indexOf(activeObject) + 1} / ${objects.length}`
     : "選擇教室物件";
   previousObject.setAttribute("aria-label", `上一個物件：${adjacentObject(-1).label}`);
   nextObject.setAttribute("aria-label", `下一個物件：${adjacentObject(1).label}`);
@@ -194,7 +220,9 @@ function updateNavigation() {
 }
 
 function showObject(object, focusDetail) {
+  stopVideo();
   activeObject = object;
+  const isVideo = object.id === "kiosk";
   const isHonors = object === honors;
   const detailHadFocus = detail.contains(document.activeElement) || document.activeElement === exitFocus;
   detail.hidden = true;
@@ -203,7 +231,8 @@ function showObject(object, focusDetail) {
   if (focusDetail || detailHadFocus) exitFocus.focus({ preventScroll: true });
   updateNavigation();
   detailTitle.textContent = object.label;
-  detailCopy.hidden = isHonors;
+  detailCopy.hidden = isHonors || isVideo;
+  videoPanel.hidden = !isVideo;
   detailCopy.textContent = object.description ?? "";
   awardsPanelRoot.hidden = !isHonors;
   detail.dataset.object = object.id;
@@ -225,6 +254,7 @@ function closeDetail(restoreFocus, returnCamera = true) {
   if (!activeObject) return;
   const selected = entries.find(entry => entry.object === activeObject);
   const origin = originTrigger;
+  stopVideo();
   activeObject = null;
   originTrigger = null;
   detail.hidden = true;
@@ -237,7 +267,7 @@ function closeDetail(restoreFocus, returnCamera = true) {
     if (restoreFocus && document.activeElement === activeControl) {
       const fallback = compact.matches ? selected.quickLink : selected.hotspot;
       const candidate = origin?.getClientRects().length ? origin : fallback;
-      if (candidate.getClientRects().length) candidate.focus({ preventScroll: true });
+      if (candidate.getClientRects().length && !candidate.disabled) candidate.focus({ preventScroll: true });
     }
   };
 
@@ -260,14 +290,16 @@ function cameraPose() {
   const maxY = Math.max(0, (worldHeight * scale - height) / 2);
   const anchorX = activeObject && !narrow ? 0.34 : 0.5;
   const anchorY = activeObject && narrow ? 0.32 : 0.5;
-  const x = (0.5 - camera.x / sceneWidth) * worldWidth * scale + (anchorX - 0.5) * width;
-  const y = (0.5 - camera.y / sceneHeight) * worldHeight * scale + (anchorY - 0.5) * height;
+  const x = (0.5 - camera.x / 100) * worldWidth * scale + (anchorX - 0.5) * width;
+  const y = (0.5 - camera.y / 100) * worldHeight * scale + (anchorY - 0.5) * height;
   const offsetX = Math.max(-maxX, Math.min(maxX, x));
   const offsetY = Math.max(-maxY, Math.min(maxY, y));
 
   return {
     world: `translate(${offsetX - worldWidth / 2}px, ${offsetY - worldHeight / 2}px) scale(${scale})`,
-    honor: isHonors && !reducedMotion() ? "translate(0.07%, -0.07%)" : "translate(0%, 0%)",
+    foreground: activeObject && !reducedMotion()
+      ? `translate(${(50 - camera.x) * 0.006}%, ${(50 - camera.y) * 0.008}%)`
+      : "translate(0%, 0%)",
   };
 }
 
@@ -317,7 +349,7 @@ function cancelMotion() {
 function moveCamera(duration = 0, onArrival = null) {
   resetPointerView();
   const pose = cameraPose();
-  const layers = [[world, pose.world], [honorLayer, pose.honor]];
+  const layers = [[world, pose.world], [hotspotList, pose.foreground]];
   const animate = duration > 0 && !reducedMotion();
   const from = animate ? layers.map(([node]) => getComputedStyle(node).transform) : [];
   cancelMotion();
@@ -353,7 +385,7 @@ function changeView(view, animate = true) {
   }
   for (const { object, hotspot, quickLink } of entries) {
     const outOfView = view !== "overview" && object.view !== view;
-    hotspot.hidden = outOfView;
+    hotspot.disabled = outOfView;
     quickLink.hidden = outOfView;
   }
   moveCamera(animate ? 470 : 0);

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#151c27">
+  <meta name="theme-color" content="#14213a">
   <title>平興數資・探索教室</title>
   <link rel="stylesheet" href="assets/classroom/classroom.css">
   <script type="module" src="assets/classroom/classroom.js"></script>
@@ -25,9 +25,7 @@
       <div class="viewport" id="viewport">
         <div class="pointer-rig" id="pointer-rig">
           <div class="world" id="world">
-            <img class="scene-art" src="assets/classroom/classroom-pingxing.webp" width="1672" height="941" alt="暖陽從左側窗戶照進教室，牆上有太陽系壁畫和微積分黑板，窗邊有 3D 列印機，中央是六角數學桌，右側是榮譽榜。">
-            <div class="honor-wall" aria-hidden="true"></div>
-            <div class="honor-layer" id="honor-layer" aria-hidden="true"></div>
+            <img class="scene-art" src="assets/classroom/room/empty.webp" width="1672" height="941" alt="參考高斯與法拉第教室繪製的像素空間，黑色天花板上有綠色與藍色的格柵及白色圓燈。">
             <div id="hotspots"></div>
           </div>
         </div>
@@ -48,6 +46,14 @@
           <button class="back" id="back" type="button">返回原視角</button>
         </header>
         <p id="detail-copy"></p>
+        <div class="video-panel" id="video-panel" hidden>
+          <div class="video-stage" id="video-stage">
+            <button class="video-play" id="video-play" type="button">
+              <span aria-hidden="true"></span>播放宣傳影片
+            </button>
+          </div>
+          <a class="video-link" href="https://www.youtube.com/watch?v=z2E_-Mv_YxM" target="_blank" rel="noopener noreferrer">在 YouTube 開啟<span aria-hidden="true"> ↗</span></a>
+        </div>
         <div id="awards-panel" hidden>
           <form id="awards-filters" class="awards-filters" aria-label="篩選獎項">
             <label>年份<select name="year" disabled></select></label>
