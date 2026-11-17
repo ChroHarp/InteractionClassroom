@@ -31,13 +31,17 @@ function wall(g, w, x, z, rot) {
   p.rotation.y = rot;
   g.add(p);
   box(p, w, 3.55, 0.10, PALETTE.wallCream, 0, 1.775, -0.06, false);
+  wainscot(p, w);
+  return p;
+}
+
+function wainscot(p, w) {
   box(p, w, 1.05, 0.055, PALETTE.wainscotGreen, 0, 0.525, 0.01, false);
   box(p, w, 0.055, 0.08, PALETTE.wainscotTrim, 0, 1.075, 0.035, true);
   box(p, w, 0.065, 0.07, PALETTE.baseboard, 0, 0.035, 0.035, false);
   for (let xx = -w / 2 + 0.28; xx < w / 2; xx += 0.42) {
     box(p, 0.012, 0.93, 0.012, 0x749b76, xx, 0.55, 0.045, false);
   }
-  return p;
 }
 
 function addFluffyTree(g, x, z, scale = 1) {
@@ -75,17 +79,19 @@ export function environment(scene, textures) {
   wall(g, 6.20, 0, -3.8, 0);
   wall(g, 10.6, 3.0, 1.5, -Math.PI / 2);
 
-  // 3. Left wall (x = -3.0): Compact 2-window science bay + full front indoor wall + oak door
-  // Lower wainscoting runs seamlessly along left wall up to the door opening (z in [-3.8, 2.75])
-  const lowerLeft = new T.Group();
-  lowerLeft.position.set(-3.0, 0, -0.525);
-  lowerLeft.rotation.y = Math.PI / 2;
-  g.add(lowerLeft);
-  box(lowerLeft, 6.55, 1.08, 0.10, PALETTE.wainscotGreen, 0, 0.54, -0.05, false);
-  box(lowerLeft, 6.55, 0.055, 0.14, PALETTE.wainscotTrim, 0, 1.105, 0.01, true);
-  box(lowerLeft, 6.55, 0.065, 0.12, PALETTE.baseboard, 0, 0.035, 0.01, false);
-  for (let x = -3.1; x < 3.1; x += 0.42) {
-    box(lowerLeft, 0.012, 0.96, 0.012, 0x749b76, x, 0.56, 0.015, false);
+  // Left wall finishes continue on both sides of the entrance.
+  const doorZ = 4.20;
+  const doorWidth = 0.96;
+  const doorStart = doorZ - doorWidth / 2;
+  const doorEnd = doorZ + doorWidth / 2;
+  for (const [start, end] of [[-3.8, doorStart], [doorEnd, 6.2]]) {
+    const section = new T.Group();
+    section.position.set(-3.0, 0, (start + end) / 2);
+    section.rotation.y = Math.PI / 2;
+    g.add(section);
+    const width = end - start;
+    box(section, width, 1.15, 0.10, PALETTE.wallCream, 0, 0.575, -0.06, false);
+    wainscot(section, width);
   }
 
   // Left wall upper header across whole length (-3.8 to 6.2)
@@ -93,26 +99,19 @@ export function environment(scene, textures) {
   // Subtle dark slate top cove trim matching ceiling edge
   box(g, 0.16, 0.14, 10.0, 0x263a51, -3.01, 3.48, 1.2, false);
 
-  // Left wall vertical solid sections around the two compact windows:
-  // Back corner pillar [-3.8, -2.62], center mullion [-1.46, -1.24],
-  // AND large indoor wall [-0.08, +2.75] for the Entry News Corkboard!
-  const solidLeftPillars = [
-    [-3.80, -2.62],
-    [-1.46, -1.24],
-    [-0.08, 2.75],
-  ];
-  for (const [za, zb] of solidLeftPillars) {
+  const leftWindows = [[-2.62, -1.46], [-1.24, -0.08], [0.57, 1.73]];
+  const leftOpenings = [...leftWindows, [doorStart, doorEnd]];
+  const solidLeftSections = leftOpenings.map(([start], index) => [
+    index === 0 ? -3.8 : leftOpenings[index - 1][1], start
+  ]);
+  solidLeftSections.push([doorEnd, 6.2]);
+  for (const [za, zb] of solidLeftSections) {
     const zw = zb - za;
     const zc = (za + zb) / 2;
     box(g, 0.12, 1.46, zw, PALETTE.wallCream, -3.02, 1.85, zc, false);
   }
 
-  // Front wall extension beyond the door (z = 3.63 to 6.2) so camera never sees void
-  box(g, 0.14, 2.56, 2.57, PALETTE.wallCream, -3.02, 1.28, 4.915, false);
-  box(g, 0.08, 1.08, 2.57, PALETTE.wainscotGreen, -2.97, 0.54, 4.915, false);
-
-  // Two compact windows on left wall: [-2.62, -1.46] and [-1.24, -0.08]
-  for (const [za, zb] of [[-2.62, -1.46], [-1.24, -0.08]]) {
+  for (const [za, zb] of leftWindows) {
     const z = (za + zb) / 2;
     const w = zb - za;
     // Cream windowsill
@@ -137,7 +136,7 @@ export function environment(scene, textures) {
   // Small potted plant on Window 2 sill
   plant(g, -2.89, 1.16, -0.35);
 
-  // 4. Outdoor scenery behind the two compact windows
+  // Outdoor scenery visible through the left windows
   const sky = canvasTexture(512, 512, (c, w, h) => {
     const gr = c.createLinearGradient(0, 0, 0, h);
     gr.addColorStop(0, "#6cc0ec");
@@ -164,11 +163,11 @@ export function environment(scene, textures) {
     addFluffyTree(g, -4.35 - (i % 2) * 0.25, -5.2 + i * 0.95, 0.92 + (i % 3) * 0.08);
   }
 
-  // 5. Classroom entrance door at left-front (z in [2.75, 3.63])
-  box(g, 0.14, 2.78, 0.96, 0xe8d9be, -2.97, 1.39, 3.19, true);
-  box(g, 0.15, 2.62, 0.80, PALETTE.oak, -2.91, 1.31, 3.19, true);
-  box(g, 0.04, 0.22, 0.06, 0x7890a1, -2.82, 1.02, 2.92, true);
-  box(g, 0.12, 0.035, 0.16, 0xd8e5ea, -2.78, 1.06, 2.97, true);
+  // Classroom entrance and hardware at the near end of the left wall.
+  box(g, 0.14, 2.78, doorWidth, 0xe8d9be, -2.97, 1.39, doorZ, true);
+  box(g, 0.15, 2.62, 0.80, PALETTE.oak, -2.91, 1.31, doorZ, true);
+  box(g, 0.04, 0.22, 0.06, 0x7890a1, -2.82, 1.02, doorZ - 0.27, true);
+  box(g, 0.12, 0.035, 0.16, 0xd8e5ea, -2.78, 1.06, doorZ - 0.22, true);
 
   // 6. Seamless Solar System & Nebula Mural across Back-Right Corner & Right Wall
   plane(g, 4.20, 0.98, basicMaterial(0xffffff, { map: textures["solar-back.webp"] }), 0.92, 3.06, -3.79, 0);

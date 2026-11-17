@@ -1,43 +1,45 @@
+import { playLabVideo, showContent, stopContentMedia } from "./content.js";
 import { createAwardsPanel } from "./awards.js";
 import { createClassroomScene3D } from "./scene-3d.js";
 
-// Keep object catalog order and IDs unchanged for keyboard cycling, bottom rail, and hash routing.
+// The catalog order drives keyboard cycling and the bottom rail. IDs are also used in URLs.
 const objects = [
-  { id: "entry", label: "最新消息", view: "front" },
-  { id: "kiosk", label: "數資班介紹影片", view: "front" },
+  { id: "entry", label: "最新消息", wideDetail: true },
+  { id: "kiosk", label: "數資班介紹影片" },
   {
-    id: "experiment", label: "科學探究", view: "work",
+    id: "experiment", label: "科學探究",
     description: "研究從一個問題開始，透過實驗、觀察和紀錄找出證據。",
   },
   {
-    id: "blackboard", label: "學習理念", view: "front",
+    id: "blackboard", label: "學習理念",
     description: "從觀察與提問開始，練習思考、探究與實作。",
   },
   {
-    id: "math", label: "數學探索", view: "work",
+    id: "math", label: "數學探索",
     description: "拿起方格紙，先預測圖形怎麼變，再試著說明你發現的規律。",
   },
   {
-    id: "courses", label: "三年課程", view: "front",
+    id: "courses", label: "三年課程",
     description: "七年級啟發試探、八年級探究實作、九年級適性分流。",
   },
-  { id: "honors", label: "榮譽榜", view: "wall" },
+  { id: "honors", label: "榮譽榜", wideDetail: true },
+  { id: "bookshelf", label: "圖書與桌遊" },
   {
-    id: "photos", label: "活動照片", view: "wall",
+    id: "photos", label: "活動照片", wideDetail: true,
     description: "校外參訪、共學與成果分享，都是教室延伸出去的學習現場。",
   },
   {
-    id: "maker", label: "創客作品", view: "work",
+    id: "maker", label: "創客作品",
     description: "在這裡看看同學如何把生活中的需求做成可操作的原型。",
   },
 ];
-
-const validViews = new Set(["overview", "front", "work", "wall"]);
+objects.forEach(object => { object.wideDetail = object.id !== "kiosk"; });
 
 const viewport = document.querySelector("#viewport");
 const scene3d = createClassroomScene3D(viewport, objects);
 viewport.dataset.scene = "3d";
 
+const videoStage = document.querySelector("#video-stage");
 const hotspotList = document.querySelector("#hotspots");
 const entranceList = document.querySelector("#entrances");
 const detail = document.querySelector("#detail");
@@ -47,10 +49,8 @@ detail.addEventListener("scroll", () => {
 const detailTitle = document.querySelector("#detail-title");
 const detailCopy = document.querySelector("#detail-copy");
 const back = document.querySelector("#back");
-const controls = [...document.querySelectorAll("[data-view]")];
 const compact = matchMedia("(max-width: 720px)");
 
-let activeView = "overview";
 let activeObject = null;
 let originTrigger = null;
 let returning = false;
@@ -67,6 +67,7 @@ function makeButton(object, inScene) {
   button.setAttribute("aria-expanded", "false");
   if (inScene) {
     button.className = "hotspot";
+    button.setAttribute("aria-label", object.label);
     const glow = document.createElement("span");
     glow.className = "hotspot-glow";
     const shape = document.createElement("span");
@@ -101,10 +102,14 @@ const entries = objects.map(object => {
   return { object, hotspot, quickLink, title: hotspot.querySelector(".hotspot-title") };
 });
 
-scene3d.onHotspotsProject(projected => {
+scene3d.onHotspotsProject((projected, screen) => {
+  if (screen) {
+    for (const [key, value] of Object.entries(screen)) videoStage.style[key] = `${value}px`;
+  }
   for (const { object, hotspot, title } of entries) {
     const box = projected[object.id];
-    if (!box || !box.visible) {
+    const coveredByVideo = activeObject?.id === "kiosk" && ["math", "kiosk"].includes(object.id);
+    if (coveredByVideo || !box || !box.visible) {
       hotspot.style.visibility = "hidden";
       continue;
     }
@@ -114,6 +119,7 @@ scene3d.onHotspotsProject(projected => {
     hotspot.style.width = `${box.width.toFixed(1)}px`;
     hotspot.style.height = `${box.height.toFixed(1)}px`;
     hotspot.style.zIndex = String(Math.max(1, Math.round((1 - box.depth) * 100)));
+    if (box.face) hotspot.style.setProperty("--hotspot-face", box.face);
     title.style.left = `${box.titleX.toFixed(1)}%`;
     title.style.top = `${box.titleY.toFixed(1)}%`;
   }
@@ -141,13 +147,9 @@ const awardsPanel = createAwardsPanel(awardsPanelRoot, filters => {
   if (activeObject === honors) history.replaceState(history.state, "", objectHash(honors));
 });
 
-const videoPanel = document.querySelector("#video-panel");
-const newsPanel = document.querySelector("#news-panel");
-const videoStage = document.querySelector("#video-stage");
-const videoPlay = document.querySelector("#video-play");
-const promoVideo = "https://www.youtube.com/embed/z2E_-Mv_YxM?autoplay=1&playsinline=1";
+const promoVideo = "https://www.youtube.com/embed/z2E_-Mv_YxM?autoplay=1&mute=1&playsinline=1";
 
-videoPlay.addEventListener("click", () => {
+function startVideo() {
   const player = document.createElement("iframe");
   player.src = promoVideo;
   player.title = "平興數資宣傳影片";
@@ -155,13 +157,12 @@ videoPlay.addEventListener("click", () => {
   player.allowFullscreen = true;
   player.referrerPolicy = "strict-origin-when-cross-origin";
   videoStage.append(player);
-  videoPlay.hidden = true;
-  player.focus({ preventScroll: true });
-});
+  videoStage.hidden = false;
+}
 
 function stopVideo() {
   videoStage.querySelector("iframe")?.remove();
-  videoPlay.hidden = false;
+  videoStage.hidden = true;
 }
 
 function readRoute() {
@@ -169,10 +170,8 @@ function readRoute() {
   const object = objects.find(item => item.id === id);
   if (!object) return null;
   const params = new URLSearchParams(query);
-  const view = params.get("view");
   return {
     object,
-    view: validViews.has(view) ? view : "overview",
     filters: {
       year: params.get("year") ?? "",
       category: params.get("category") ?? "",
@@ -183,7 +182,6 @@ function readRoute() {
 
 function objectHash(object) {
   const params = new URLSearchParams();
-  if (activeView !== "overview") params.set("view", activeView);
   if (object === honors) {
     for (const key of ["year", "category", "q"]) {
       if (honorsFilters[key]) params.set(key, honorsFilters[key]);
@@ -218,11 +216,10 @@ function syncRoute() {
   returning = false;
   const route = readRoute();
   if (!route) {
-    closeDetail(true);
+    closeDetail();
     return;
   }
 
-  if (activeView !== route.view) changeView(route.view, false);
   if (route.object === honors) {
     honorsFilters = route.filters;
     awardsPanel.setFilters(honorsFilters);
@@ -245,6 +242,7 @@ function updateNavigation() {
   for (const { object, hotspot, quickLink } of entries) {
     const expanded = String(object === activeObject);
     hotspot.setAttribute("aria-expanded", expanded);
+    hotspot.tabIndex = object === activeObject ? -1 : 0;
     quickLink.setAttribute("aria-expanded", expanded);
     if (object === activeObject && !quickLink.hidden) {
       const rail = entranceList.getBoundingClientRect();
@@ -255,37 +253,37 @@ function updateNavigation() {
   }
 }
 
-function objectsInView(view) {
-  return view === "overview" ? objects : objects.filter(object => object.view === view);
-}
-
 function showObject(object, focusDetail) {
   clearDetailReveal();
   stopVideo();
+  stopContentMedia();
   activeObject = object;
   scene3d.setHighlighted(null);
-  const isNews = object.id === "entry";
   const isVideo = object.id === "kiosk";
+  const isExperiment = object.id === "experiment";
   const isHonors = object === honors;
   const detailHadFocus = detail.contains(document.activeElement) || document.activeElement === exitFocus;
   detail.hidden = true;
   exitFocus.hidden = false;
-  hotspotList.inert = true;
   if (focusDetail || detailHadFocus) exitFocus.focus({ preventScroll: true });
   updateNavigation();
   detailTitle.textContent = object.label;
-  detailCopy.hidden = isHonors || isVideo || isNews;
-  newsPanel.hidden = !isNews;
-  videoPanel.hidden = !isVideo;
+  detailCopy.hidden = true;
+  showContent(object.id);
   detailCopy.textContent = object.description ?? "";
   awardsPanelRoot.hidden = !isHonors;
   detail.dataset.object = object.id;
+  detail.toggleAttribute("data-wide", Boolean(object.wideDetail));
 
   if (isHonors) {
     awardsPanel.setFilters(honorsFilters);
     awardsPanel.load();
   }
   moveCamera(570, () => {
+    if (isVideo) {
+      startVideo();
+      return;
+    }
     const reveal = () => {
       detailRevealTimer = 0;
       if (activeObject !== object) return;
@@ -293,8 +291,9 @@ function showObject(object, focusDetail) {
       detail.hidden = false;
       detail.scrollTop = 0;
       detail.classList.remove("is-scrolled");
-      if (document.activeElement === exitFocus) detailTitle.focus({ preventScroll: true });
-      exitFocus.hidden = true;
+      if (!isExperiment && document.activeElement === exitFocus) detailTitle.focus({ preventScroll: true });
+      exitFocus.hidden = !isExperiment;
+      if (isExperiment) playLabVideo();
     };
     if (isHonors && !reducedMotion()) {
       detailRevealTimer = setTimeout(reveal, 140);
@@ -304,31 +303,30 @@ function showObject(object, focusDetail) {
   });
 }
 
-function closeDetail(restoreFocus, returnCamera = true) {
+function closeDetail() {
   if (!activeObject) return;
   clearDetailReveal();
   const selected = entries.find(entry => entry.object === activeObject);
   const origin = originTrigger;
+  const restoreFocus = detail.contains(document.activeElement) ||
+    videoStage.contains(document.activeElement) || document.activeElement === exitFocus;
+  if (restoreFocus) viewport.focus({ preventScroll: true });
   stopVideo();
+  stopContentMedia();
   activeObject = null;
   originTrigger = null;
   detail.hidden = true;
   exitFocus.hidden = true;
   updateNavigation();
 
-  const activeControl = controls.find(control => control.dataset.view === activeView);
-  const finish = () => {
-    hotspotList.inert = false;
-    if (restoreFocus && document.activeElement === activeControl) {
+  moveCamera(470, () => {
+    if (restoreFocus && document.activeElement === viewport) {
       const fallback = compact.matches ? selected.quickLink : selected.hotspot;
-      const candidate = origin?.getClientRects().length ? origin : fallback;
-      if (candidate.getClientRects().length && !candidate.disabled) candidate.focus({ preventScroll: true });
+      const isVisible = button => button?.getClientRects().length && getComputedStyle(button).visibility === "visible";
+      const candidate = [origin, fallback, selected.quickLink].find(isVisible);
+      candidate?.focus({ preventScroll: true });
     }
-  };
-
-  if (restoreFocus) activeControl.focus({ preventScroll: true });
-  if (returnCamera) moveCamera(470, finish);
-  else finish();
+  });
 }
 
 let pendingArrival = null;
@@ -356,7 +354,7 @@ function moveCamera(duration = 0, onArrival = null) {
   const animate = duration > 0 && !reducedMotion();
   pendingArrival = onArrival;
   scene3d.setPose(
-    activeView,
+    "overview",
     activeObject?.id ?? null,
     compact.matches,
     animate ? duration : 0,
@@ -365,23 +363,6 @@ function moveCamera(duration = 0, onArrival = null) {
       onArrival?.();
     }
   );
-}
-
-function changeView(view, animate = true) {
-  closeDetail(false, false);
-  hotspotList.inert = false;
-  activeView = view;
-  viewport.dataset.view = view;
-  for (const control of controls) {
-    control.setAttribute("aria-pressed", String(control.dataset.view === view));
-  }
-  const visibleObjects = objectsInView(view);
-  for (const { object, hotspot, quickLink } of entries) {
-    const outOfView = !visibleObjects.includes(object);
-    hotspot.disabled = outOfView;
-    quickLink.hidden = outOfView;
-  }
-  moveCamera(animate ? 470 : 0);
 }
 
 function refreshMotion() {
@@ -393,17 +374,14 @@ function refreshMotion() {
   moveCamera(0, pendingArrival);
 }
 
-for (const control of controls) {
-  control.addEventListener("click", () => {
-    changeView(control.dataset.view);
-    leaveRoute();
-  });
-}
-
 function closeFromControl() {
-  closeDetail(true);
+  closeDetail();
   leaveRoute();
 }
+
+viewport.addEventListener("click", event => {
+  if (activeObject && !event.target.closest(".hotspot, #video-stage")) closeFromControl();
+});
 
 for (const button of [back, exitFocus]) {
   button.addEventListener("click", closeFromControl);
@@ -412,6 +390,7 @@ previousObject.addEventListener("click", () => openObject(adjacentObject(-1), pr
 nextObject.addEventListener("click", () => openObject(adjacentObject(1), nextObject, false));
 motionPreference.addEventListener("change", refreshMotion);
 document.addEventListener("keydown", event => {
+  if (event.defaultPrevented || event.target.closest("dialog[open], video")) return;
   if (event.key === "Escape" && activeObject) closeFromControl();
   if (!activeObject || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey ||
       event.target.matches("input, select, textarea, [contenteditable]")) return;
@@ -431,7 +410,6 @@ new ResizeObserver(() => {
 window.addEventListener("popstate", syncRoute);
 window.addEventListener("hashchange", syncRoute);
 
-changeView("overview", false);
 updateNavigation();
 refreshMotion();
 syncRoute();

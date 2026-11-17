@@ -1,11 +1,12 @@
 import * as THREE from "./vendor/three.module.min.js";
-import { honors, experiment, maker, mathProps } from "./scene-props.js";
+import { honors, bookshelf, experiment, maker, mathProps } from "./scene-props.js";
 import { surfaces, PALETTE, celMaterial, basicMaterial, addInkEdges } from "./scene-materials.js";
 import { environment } from "./scene-environment.js";
 
 const ROOM = { w: 6.0, h: 3.55, d: 7.6 }; // x in [-3, 3], y in [0, 3.55], z in [-3.8, 3.8]
 const HALF_W = ROOM.w / 2;
 const HALF_D = ROOM.d / 2;
+const ENTRY_BOARD_Z = 2.85;
 
 // Camera positions & targets for overview/zone views and each object focus.
 const VIEW_POSES = {
@@ -29,12 +30,8 @@ const VIEW_POSES = {
 
 const OBJECT_POSES = {
   entry: {
-    pos: [-0.82, 1.84, 0.85], target: [-2.96, 1.84, 0.72], fov: 42,
-    compact: { pos: [-0.45, 1.48, 1.15], target: [-2.96, 0.92, 1.15], fov: 50 },
-  },
-  kiosk: {
-    pos: [-0.20, 1.32, 3.25], target: [-1.85, 1.02, 1.98], fov: 44,
-    compact: { pos: [-0.45, 1.36, 3.45], target: [-2.18, 0.65, 2.32], fov: 48 },
+    pos: [-0.82, 1.84, ENTRY_BOARD_Z - 0.30], target: [-2.96, 1.84, ENTRY_BOARD_Z - 0.43], fov: 42,
+    compact: { pos: [-0.45, 1.48, ENTRY_BOARD_Z], target: [-2.96, 0.92, ENTRY_BOARD_Z], fov: 50 },
   },
   experiment: {
     pos: [-0.45, 1.48, -1.55], target: [-2.62, 0.96, -1.78], fov: 48,
@@ -56,6 +53,10 @@ const OBJECT_POSES = {
     pos: [-1.75, 1.82, 0.40], target: [2.92, 1.82, 0.22], fov: 44,
     landscape: { pos: [-2.45, 1.85, 0.65], target: [2.92, 1.48, 0.50], fov: 48 },
     compact: { pos: [-2.15, 1.52, -0.65], target: [2.92, 0.78, -0.65], fov: 48 },
+  },
+  bookshelf: {
+    pos: [-0.72, 1.36, -0.24], target: [2.72, 0.55, -0.65], fov: 42,
+    compact: { pos: [-1.55, 1.50, -0.65], target: [2.72, -1.42, -0.65], fov: 48 },
   },
   photos: {
     pos: [-0.35, 2.02, 2.80], target: [2.92, 2.02, 2.72], fov: 38,
@@ -116,6 +117,8 @@ function createWallBoard(tex, width, height, depth, edgeColor) {
   return mesh;
 }
 
+const KIOSK_DISPLAY = { width: 1.02, height: 1.02 * 9 / 16 };
+
 function createKiosk(textures) {
   const group = new THREE.Group();
   const addBox = (w, h, d, color, x, y, z, parent = group) => {
@@ -140,25 +143,26 @@ function createKiosk(textures) {
   addBox(1.16, 0.72, 0.085, PALETTE.mint, 0, 0, 0, screenPivot);
   addBox(1.07, 0.63, 0.022, 0x1e3348, 0, 0, 0.044, screenPivot);
 
-  // Active 16:9 landscape display + contained square LOGO on left card
+  // The distant screen shows the class logo.
   const display = new THREE.Mesh(
-    new THREE.PlaneGeometry(1.02, 0.574),
-    basicMaterial(0xffffff, { map: textures["kiosk-screen.webp"] })
+    new THREE.PlaneGeometry(KIOSK_DISPLAY.width, KIOSK_DISPLAY.height),
+    basicMaterial(0xffffff)
   );
   display.position.set(0, 0, 0.056);
   screenPivot.add(display);
+  group.userData.display = display;
 
   const logo = new THREE.Mesh(
     new THREE.PlaneGeometry(0.32, 0.32),
     basicMaterial(0xffffff, { map: textures["logo-2025.webp"], transparent: true })
   );
-  logo.position.set(-0.275, 0, 0.058);
+  logo.position.set(0, 0, 0.058);
   screenPivot.add(logo);
 
   // Small bottom power/sensor button pill on bezel
   addBox(0.11, 0.016, 0.008, 0x2c5c63, 0, -0.33, 0.045, screenPivot);
 
-  group.position.set(-2.18, 0, 2.32);
+  group.position.set(-2.27, 0, 3.65);
   group.rotation.y = 0.98;
   return group;
 }
@@ -393,7 +397,7 @@ export function createClassroomScene3D(viewport, objects) {
     entry: (() => {
       const g = createWallBoard(textures["entry-sign.webp"], 1.34, 0.94, 0.045, 0x4fc4b0);
       g.rotation.y = Math.PI / 2;
-      g.position.set(-HALF_W + 0.04, 1.84, 1.15);
+      g.position.set(-HALF_W + 0.04, 1.84, ENTRY_BOARD_Z);
       return g;
     })(),
     kiosk: createKiosk(textures),
@@ -428,6 +432,7 @@ export function createClassroomScene3D(viewport, objects) {
       return g;
     })(),
     honors: honors(),
+    bookshelf: bookshelf(),
     photos: (() => {
       const g = new THREE.Group();
       g.add(createWallBoard(textures["photos-board.webp"], 1.72, 1.04, 0.045, 0x86c0ec));
@@ -461,6 +466,7 @@ export function createClassroomScene3D(viewport, objects) {
     math: [0, 0.56, 0],
     courses: [0, 0, 0],
     honors: [0, 0, 0],
+    bookshelf: [0, 0.57, 0.20],
     photos: [0, 0, 0],
     maker: [0, 0.70, 0],
   };
@@ -473,9 +479,13 @@ export function createClassroomScene3D(viewport, objects) {
   }
 
   // Camera state & pointer parallax (Render-on-Demand)
+  const kioskDisplay = interactiveGroups.kiosk.userData.display;
+  let kioskFocused = false;
   let currentPos = new THREE.Vector3(...VIEW_POSES.overview.pos);
   let currentTarget = new THREE.Vector3(...VIEW_POSES.overview.target);
   let currentFov = VIEW_POSES.overview.fov;
+  let currentZoom = 1;
+  let currentShift = 0;
 
   let tween = null;
   let pointerOffset = new THREE.Vector2(0, 0);
@@ -497,7 +507,10 @@ export function createClassroomScene3D(viewport, objects) {
 
     camera.aspect = aspect;
     camera.fov = computeAdjustedFov(currentFov, aspect);
+    camera.zoom = currentZoom;
     camera.updateProjectionMatrix();
+    camera.projectionMatrix.elements[8] = -currentShift;
+    camera.projectionMatrixInverse.copy(camera.projectionMatrix).invert();
 
     const lookDir = new THREE.Vector3().subVectors(currentTarget, currentPos).normalize();
     const rightAxis = new THREE.Vector3().crossVectors(lookDir, camera.up).normalize();
@@ -512,7 +525,21 @@ export function createClassroomScene3D(viewport, objects) {
     camera.updateMatrixWorld(true);
     renderer.render(scene, camera);
 
-    if (hotspotUpdater) hotspotUpdater(projectAll(width, height));
+    if (hotspotUpdater) {
+      let screen = null;
+      if (kioskFocused && !tween) {
+        const corner = (x, y) => kioskDisplay.localToWorld(new THREE.Vector3(x, y, 0)).project(camera);
+        const tl = corner(-KIOSK_DISPLAY.width / 2, KIOSK_DISPLAY.height / 2);
+        const br = corner(KIOSK_DISPLAY.width / 2, -KIOSK_DISPLAY.height / 2);
+        screen = {
+          left: (1 + tl.x) * width / 2,
+          top: (1 - tl.y) * height / 2,
+          width: (br.x - tl.x) * width / 2,
+          height: (tl.y - br.y) * height / 2,
+        };
+      }
+      hotspotUpdater(projectAll(width, height), screen);
+    }
   }
 
   function step(now) {
@@ -526,6 +553,8 @@ export function createClassroomScene3D(viewport, objects) {
       currentPos.lerpVectors(tween.fromPos, tween.toPos, t);
       currentTarget.lerpVectors(tween.fromTarget, tween.toTarget, t);
       currentFov = THREE.MathUtils.lerp(tween.fromFov, tween.toFov, t);
+      currentZoom = THREE.MathUtils.lerp(tween.fromZoom, tween.toZoom, t);
+      currentShift = THREE.MathUtils.lerp(tween.fromShift, tween.toShift, t);
 
       if (raw >= 1) {
         arrivedDone = tween.onArrival;
@@ -564,7 +593,8 @@ export function createClassroomScene3D(viewport, objects) {
           for (let iz = 0; iz < 2; iz++) {
             corner.set(ix ? box.max.x : box.min.x, iy ? box.max.y : box.min.y, iz ? box.max.z : box.min.z);
             corner.project(camera);
-            if (corner.z < 1) inFront = true;
+            if (corner.z < -1 || corner.z > 1) continue;
+            inFront = true;
             const sx = (corner.x * 0.5 + 0.5) * width;
             const sy = (-corner.y * 0.5 + 0.5) * height;
             if (sx < minX) minX = sx;
@@ -583,13 +613,26 @@ export function createClassroomScene3D(viewport, objects) {
       const clBottom = Math.min(height, maxY);
       const boxW = Math.max(0, clRight - clLeft);
       const boxH = Math.max(0, clBottom - clTop);
+      let face;
+      if (object.id === "bookshelf" && boxW > 12 && boxH > 12) {
+        // Use the cabinet front so its hotspot can sit above the table's larger bounds.
+        const corners = [[box.max.y, box.min.z], [box.max.y, box.max.z],
+          [box.min.y, box.max.z], [box.min.y, box.min.z]];
+        face = `polygon(${corners.map(([y, z]) => {
+          corner.set(box.min.x, y, z).project(camera);
+          const xPct = ((corner.x + 1) * width / 2 - clLeft) / boxW * 100;
+          const yPct = ((1 - corner.y) * height / 2 - clTop) / boxH * 100;
+          return `${xPct.toFixed(1)}% ${yPct.toFixed(1)}%`;
+        }).join(", ")})`;
+      }
       out[object.id] = {
-        visible: inFront && cProj.z < 1 && boxW > 12 && boxH > 12,
+        visible: inFront && boxW > 12 && boxH > 12,
         left: clLeft,
         top: clTop,
         width: boxW,
         height: boxH,
         depth: cProj.z,
+        face,
         titleX: boxW > 0 ? THREE.MathUtils.clamp(((cx - clLeft) / boxW) * 100, 18, 82) : 50,
         titleY: boxH > 0 ? THREE.MathUtils.clamp(((cy - clTop) / boxH) * 100, 18, 82) : 50,
       };
@@ -597,18 +640,57 @@ export function createClassroomScene3D(viewport, objects) {
     return out;
   }
 
+  function fitLeftHalf(box, position, target, fov, aspect) {
+    const preview = new THREE.PerspectiveCamera(computeAdjustedFov(fov, aspect), aspect);
+    preview.position.copy(position);
+    preview.lookAt(target);
+    preview.updateMatrixWorld(true);
+
+    const projected = new THREE.Box2();
+    const corner = new THREE.Vector3();
+    for (const x of [box.min.x, box.max.x]) {
+      for (const y of [box.min.y, box.max.y]) {
+        for (const z of [box.min.z, box.max.z]) {
+          projected.expandByPoint(corner.set(x, y, z).project(preview));
+        }
+      }
+    }
+    const size = projected.getSize(new THREE.Vector2());
+    const zoom = Math.min(1, 0.88 / size.x, 1.65 / size.y);
+    const center = projected.getCenter(new THREE.Vector2());
+    return { zoom, shift: -0.5 - center.x * zoom };
+  }
+
   return {
     setPose(view, objectId, isCompact, duration = 0, onArrival = null) {
       const pose = getPose(view, objectId, isCompact);
       const toPos = new THREE.Vector3(...pose.pos);
       const toTarget = new THREE.Vector3(...pose.target);
-      const toFov = pose.fov;
+      const toFov = objectId === "kiosk" ? 42 : pose.fov;
+      const aspect = viewport.clientWidth / Math.max(1, viewport.clientHeight) || 16 / 9;
+      const wideDetail = !isCompact && objects.some(object => object.id === objectId && object.wideDetail);
+      const { zoom: toZoom, shift: toShift } = wideDetail
+        ? fitLeftHalf(boundsById[objectId].box, toPos, toTarget, toFov, aspect)
+        : { zoom: 1, shift: 0 };
+      kioskFocused = objectId === "kiosk";
+      if (kioskFocused) {
+        pointerOffset.set(0, 0);
+        pointerTarget.set(0, 0);
+        const halfFov = THREE.MathUtils.degToRad(computeAdjustedFov(toFov, aspect) / 2);
+        const fitHeight = Math.max(KIOSK_DISPLAY.height / 0.70, KIOSK_DISPLAY.width / (0.88 * aspect));
+        const distance = fitHeight / (2 * Math.tan(halfFov));
+        kioskDisplay.getWorldPosition(toTarget);
+        const normal = new THREE.Vector3(0, 0, 1).applyQuaternion(kioskDisplay.getWorldQuaternion(new THREE.Quaternion()));
+        toPos.copy(toTarget).addScaledVector(normal, distance);
+      }
 
       if (duration <= 0) {
         tween = null;
         currentPos.copy(toPos);
         currentTarget.copy(toTarget);
         currentFov = toFov;
+        currentZoom = toZoom;
+        currentShift = toShift;
         renderNow();
         onArrival?.();
         return;
@@ -620,16 +702,20 @@ export function createClassroomScene3D(viewport, objects) {
         fromPos: currentPos.clone(),
         fromTarget: currentTarget.clone(),
         fromFov: currentFov,
+        fromZoom: currentZoom,
+        fromShift: currentShift,
         toPos,
         toTarget,
         toFov,
+        toZoom,
+        toShift,
         onArrival,
       };
       requestRender();
     },
 
     setPointerDrift(nx, ny) {
-      if (tween) return;
+      if (tween || kioskFocused) return;
       pointerTarget.set(THREE.MathUtils.clamp(nx, -1, 1), THREE.MathUtils.clamp(ny, -1, 1));
       requestRender();
     },

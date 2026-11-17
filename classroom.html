@@ -6,6 +6,7 @@
   <meta name="theme-color" content="#14213a">
   <title>平興數資・探索教室</title>
   <link rel="stylesheet" href="assets/classroom/classroom.css">
+  <link rel="stylesheet" href="assets/classroom/content.css">
   <script>
     if (location.protocol === "file:") document.documentElement.dataset.localFile = "";
   </script>
@@ -14,78 +15,62 @@
 <body>
   <main class="shell">
     <div class="room" id="room">
-      <header class="masthead">
-        <h1>探索教室 <span>平興國中數理資優班</span></h1>
-        <nav class="views" aria-label="教室視角">
-          <button type="button" data-view="overview" aria-pressed="true">全景</button>
-          <button type="button" data-view="front" aria-pressed="false">前方</button>
-          <button type="button" data-view="work" aria-pressed="false">實作區</button>
-          <button type="button" data-view="wall" aria-pressed="false">成果牆</button>
-        </nav>
-      </header>
+      <h1 class="visually-hidden">平興國中數理資優班探索教室</h1>
 
-      <div class="viewport" id="viewport">
+      <div class="viewport" id="viewport" tabindex="-1">
         <div class="pointer-rig" id="pointer-rig">
           <div class="world" id="world">
             <img class="scene-art" src="assets/classroom/room/scene-fallback.jpg" width="1280" height="720" alt="探索教室真 3D 場景：斜向藍綠天花格柵、行星壁畫、彩色實驗器材、三色創客櫃與顯示平興數資 LOGO 的橫式教學螢幕。">
             <div id="hotspots"></div>
           </div>
         </div>
+        <div class="video-stage" id="video-stage" hidden></div>
       </div>
 
       <nav class="scene-navigation" aria-label="教室物件導覽">
         <button type="button" id="previous-object" aria-label="上一個物件"><span aria-hidden="true">←</span></button>
         <div class="scene-navigation-center">
           <p id="scene-status" role="status">選擇教室物件</p>
+          <p class="content-links"><a href="content.html">課程與作品目錄</a> · <a href="https://lin.ee/twA52IQj" target="_blank" rel="noopener">聯絡我們</a></p>
           <div class="entrances" id="entrances" aria-label="教室物件"></div>
         </div>
         <button type="button" id="next-object" aria-label="下一個物件"><span aria-hidden="true">→</span></button>
       </nav>
-      <button class="back" id="exit-focus" type="button" hidden>返回原視角</button>
+      <button class="back" id="exit-focus" type="button" hidden>返回全景</button>
       <section class="detail" id="detail" aria-labelledby="detail-title" hidden>
         <header class="detail-header">
           <h2 id="detail-title" tabindex="-1"></h2>
-          <button class="back" id="back" type="button">返回原視角</button>
+          <button class="back" id="back" type="button">返回全景</button>
         </header>
+        <div id="learning-content" class="learning-content" hidden></div>
         <p id="detail-copy"></p>
-        <ul class="news-list" id="news-panel" hidden>
-          <li>
-            <h3>畢業生錄取中大壢中數理資優班</h3>
-            <p>兩位本班畢業生錄取中大壢中數理資優班，其中一位憑全國科展第三名的成績優先錄取。</p>
-          </li>
-          <li>
-            <h3>第 66 屆全國科展佳作</h3>
-            <p>「贏在氣泡點」團隊以自製低動力微細氣泡管探究氣泡生成與應用，榮獲應用科學科（三）佳作。</p>
-          </li>
-          <li>
-            <h3>2026 IEYI 台灣賽兩件作品獲銅牌</h3>
-            <p>「智能提醒櫃」與「自動清洗籠」皆獲銅牌。</p>
-          </li>
-        </ul>
-        <div class="video-panel" id="video-panel" hidden>
-          <div class="video-stage" id="video-stage">
-            <button class="video-play" id="video-play" type="button">
-              <span aria-hidden="true"></span>播放宣傳影片
-            </button>
+        <div id="awards-panel" class="awards-panel" hidden>
+          <div class="awards-sticky-top">
+            <form id="awards-filters" class="awards-filters" aria-label="搜尋獎項">
+              <label class="awards-search">搜尋獎項<input type="search" name="q" maxlength="120" placeholder="輸入年份、作品、競賽或獎項" disabled></label>
+            </form>
+            <div class="awards-legend" aria-label="獎項強調色圖例">
+              <span class="legend-item"><i class="legend-swatch tier-super" aria-hidden="true"></i>國際／全國大獎</span>
+              <span class="legend-item"><i class="legend-swatch tier-major" aria-hidden="true"></i>全國入選／市賽首獎</span>
+              <span class="legend-item"><i class="legend-swatch tier-mid" aria-hidden="true"></i>市賽佳績</span>
+              <span class="legend-item"><i class="legend-swatch tier-normal" aria-hidden="true"></i>入選／區賽</span>
+            </div>
+            <div class="awards-year-nav" aria-label="年度滑桿導覽">
+              <button id="awards-prev-year" class="awards-scroll-btn" type="button" aria-label="往較早年份捲動">‹</button>
+              <input id="awards-year-range" class="awards-year-range" type="range" min="0" max="1000" value="1000" aria-label="左右滑動切換年份" disabled>
+              <button id="awards-next-year" class="awards-scroll-btn" type="button" aria-label="往較新年份捲動">›</button>
+            </div>
+            <div class="awards-summary">
+              <p id="awards-status" role="status" tabindex="-1"></p>
+              <button id="awards-clear" type="button" hidden>清除搜尋</button>
+              <button id="awards-retry" type="button" hidden>重新載入</button>
+            </div>
           </div>
-          <a class="video-link" href="https://www.youtube.com/watch?v=z2E_-Mv_YxM" target="_blank" rel="noopener noreferrer">在 YouTube 開啟<span aria-hidden="true"> ↗</span></a>
-        </div>
-        <div id="awards-panel" hidden>
-          <form id="awards-filters" class="awards-filters" aria-label="篩選獎項">
-            <label>年份<select name="year" disabled></select></label>
-            <label>類別<select name="category" disabled></select></label>
-            <label class="awards-search">搜尋獎項<input type="search" name="q" maxlength="120" placeholder="作品、競賽或獎項" disabled></label>
-          </form>
-          <div class="awards-summary">
-            <p id="awards-status" role="status" tabindex="-1"></p>
-            <button id="awards-clear" type="button" hidden>清除篩選</button>
-            <button id="awards-retry" type="button" hidden>重新載入</button>
-          </div>
-          <ol id="awards-results" class="awards-results" aria-label="獎項清單" aria-busy="false"></ol>
+          <div id="awards-results" class="awards-results" role="region" aria-label="歷屆獲獎年度牆" aria-busy="false"></div>
         </div>
       </section>
       <noscript>
-        <p class="no-script">開啟 JavaScript 即可操作教室入口。
+        <p class="no-script"><a href="content.html">閱讀課程與作品目錄</a>，或開啟 JavaScript 操作教室。
         </p>
       </noscript>
       <p class="local-file-notice">

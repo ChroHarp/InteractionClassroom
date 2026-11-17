@@ -527,25 +527,23 @@ export function surfaces() {
       c.textBaseline = "alphabetic";
     };
 
-    // Timetable rows matching images/course_map.png
-    drawCourseBar(0, 1, 0, "團體輔導 / 創造力 / 1", "#f4a399", "#c95248");
-    drawCourseBar(1, 1, 0, "團體輔導 / 科學閱讀 / 1", "#f4a399", "#c95248");
+    // Timetable rows matching images/course_map.png (course names only, without period counts)
+    drawCourseBar(0, 1, 0, "團體輔導 / 創造力", "#f4a399", "#c95248");
+    drawCourseBar(1, 1, 0, "團體輔導 / 科學閱讀", "#f4a399", "#c95248");
 
-    drawCourseBar(0, 2, 1, "數學 / 3", "#8cc7f7", "#3f86c9");
-    drawCourseBar(2, 1, 1, "數學 / 4", "#8cc7f7", "#3f86c9");
+    drawCourseBar(0, 3, 1, "數學", "#8cc7f7", "#3f86c9");
 
-    drawCourseBar(0, 2, 2, "數學專題 / 2", "#78bbf4", "#377ec2");
-    drawCourseBar(2, 1, 2, "數學專題 / 1", "#78bbf4", "#377ec2");
+    drawCourseBar(0, 3, 2, "數學專題", "#78bbf4", "#377ec2");
 
-    drawCourseBar(1, 2, 3, "幾何專題 / 1", "#69b1ef", "#2f74b8");
+    drawCourseBar(1, 2, 3, "幾何專題", "#69b1ef", "#2f74b8");
 
-    drawCourseBar(0, 1, 4, "生物實驗 / 2", "#bae37d", "#6e9e35");
-    drawCourseBar(1, 2, 4, "理化 / 4", "#bae37d", "#6e9e35");
+    drawCourseBar(0, 1, 4, "生物實驗", "#bae37d", "#6e9e35");
+    drawCourseBar(1, 2, 4, "理化", "#bae37d", "#6e9e35");
 
-    drawCourseBar(0, 1, 5, "科技專題 / 1", "#fac26e", "#ce7f26");
-    drawCourseBar(1, 2, 5, "理化實驗 / 1", "#bae37d", "#6e9e35");
+    drawCourseBar(0, 1, 5, "科技專題", "#fac26e", "#ce7f26");
+    drawCourseBar(1, 2, 5, "理化實驗", "#bae37d", "#6e9e35");
 
-    drawCourseBar(0, 2, 6, "獨立研究 / 2", "#bea9f4", "#7459bd");
+    drawCourseBar(0, 2, 6, "獨立研究", "#bea9f4", "#7459bd");
     drawCourseBar(2, 1, 6, "升學與競賽適性輔導", "#d6e2ee", "#7292b0");
 
     // Bottom cross-grade footer bar

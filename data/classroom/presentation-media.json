@@ -1,0 +1,1424 @@
+[
+  {
+    "slide": 1,
+    "asset": "image17.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 1,
+    "asset": "image16.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 1,
+    "asset": "image18.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 2,
+    "asset": "image19.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 5,
+    "asset": "image20.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 6,
+    "asset": "image21.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 6,
+    "asset": "image22.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 7,
+    "asset": "image26.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 7,
+    "asset": "image25.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 7,
+    "asset": "image24.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 7,
+    "asset": "image23.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 8,
+    "asset": "image30.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 8,
+    "asset": "image29.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 8,
+    "asset": "image26.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 8,
+    "asset": "image28.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 8,
+    "asset": "image27.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 9,
+    "asset": "image29.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 9,
+    "asset": "image30.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 9,
+    "asset": "image26.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 9,
+    "asset": "image28.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 9,
+    "asset": "image27.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 10,
+    "asset": "image34.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 10,
+    "asset": "image33.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 10,
+    "asset": "image32.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 10,
+    "asset": "image31.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 11,
+    "asset": "image38.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 11,
+    "asset": "image37.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 11,
+    "asset": "image36.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 11,
+    "asset": "image26.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 11,
+    "asset": "image35.jpeg",
+    "type": "image",
+    "included": true
+  },
+  {
+    "slide": 12,
+    "asset": "image41.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 12,
+    "asset": "image26.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 12,
+    "asset": "image40.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 12,
+    "asset": "image39.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 12,
+    "asset": "image35.jpeg",
+    "type": "image",
+    "included": true
+  },
+  {
+    "slide": 13,
+    "asset": "image26.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 13,
+    "asset": "media1.mp4",
+    "type": "video",
+    "included": true
+  },
+  {
+    "slide": 13,
+    "asset": "image43.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 13,
+    "asset": "media1.mp4",
+    "type": "media",
+    "included": true
+  },
+  {
+    "slide": 13,
+    "asset": "image42.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 13,
+    "asset": "image45.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 13,
+    "asset": "image44.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 14,
+    "asset": "media2.mp4",
+    "type": "video",
+    "included": true
+  },
+  {
+    "slide": 14,
+    "asset": "image26.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 14,
+    "asset": "media2.mp4",
+    "type": "media",
+    "included": true
+  },
+  {
+    "slide": 14,
+    "asset": "image46.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 15,
+    "asset": "image51.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 15,
+    "asset": "image48.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 15,
+    "asset": "image53.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 15,
+    "asset": "image50.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 15,
+    "asset": "image26.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 15,
+    "asset": "image52.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 15,
+    "asset": "image54.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 15,
+    "asset": "image47.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 15,
+    "asset": "image49.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 16,
+    "asset": "image55.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 17,
+    "asset": "image56.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 18,
+    "asset": "image57.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 19,
+    "asset": "image58.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 20,
+    "asset": "image63.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 20,
+    "asset": "image68.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 20,
+    "asset": "image62.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 20,
+    "asset": "image67.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 20,
+    "asset": "image61.svg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 20,
+    "asset": "image66.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 20,
+    "asset": "image60.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 20,
+    "asset": "image65.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 20,
+    "asset": "image59.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 20,
+    "asset": "image64.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 20,
+    "asset": "image69.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 21,
+    "asset": "image64.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 21,
+    "asset": "image69.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 21,
+    "asset": "image65.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 21,
+    "asset": "image62.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 21,
+    "asset": "image66.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 21,
+    "asset": "image26.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 21,
+    "asset": "image67.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 21,
+    "asset": "image21.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 21,
+    "asset": "image68.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 22,
+    "asset": "image71.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 22,
+    "asset": "media3.mp4",
+    "type": "video",
+    "included": true
+  },
+  {
+    "slide": 22,
+    "asset": "image26.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 22,
+    "asset": "media3.mp4",
+    "type": "media",
+    "included": true
+  },
+  {
+    "slide": 22,
+    "asset": "image70.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 22,
+    "asset": "image74.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 22,
+    "asset": "image73.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 22,
+    "asset": "image72.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 23,
+    "asset": "image21.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 23,
+    "asset": "image22.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 24,
+    "asset": "image75.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 24,
+    "asset": "image26.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 25,
+    "asset": "image80.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 25,
+    "asset": "image76.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 25,
+    "asset": "image79.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 25,
+    "asset": "image78.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 25,
+    "asset": "image83.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 25,
+    "asset": "image77.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 25,
+    "asset": "image82.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 25,
+    "asset": "image26.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 25,
+    "asset": "image81.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 26,
+    "asset": "image81.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 26,
+    "asset": "image21.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 26,
+    "asset": "image80.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 26,
+    "asset": "image78.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 26,
+    "asset": "image83.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 26,
+    "asset": "image84.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 26,
+    "asset": "image82.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 26,
+    "asset": "image26.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 26,
+    "asset": "image85.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 27,
+    "asset": "image22.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 27,
+    "asset": "image21.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 28,
+    "asset": "media4.mp4",
+    "type": "video",
+    "included": false
+  },
+  {
+    "slide": 28,
+    "asset": "media4.mp4",
+    "type": "media",
+    "included": false
+  },
+  {
+    "slide": 28,
+    "asset": "image86.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 29,
+    "asset": "media5.mp4",
+    "type": "video",
+    "included": false
+  },
+  {
+    "slide": 29,
+    "asset": "media5.mp4",
+    "type": "media",
+    "included": false
+  },
+  {
+    "slide": 29,
+    "asset": "image87.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 30,
+    "asset": "media6.mp4",
+    "type": "video",
+    "included": false
+  },
+  {
+    "slide": 30,
+    "asset": "media6.mp4",
+    "type": "media",
+    "included": false
+  },
+  {
+    "slide": 30,
+    "asset": "image88.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 31,
+    "asset": "media7.mp4",
+    "type": "video",
+    "included": false
+  },
+  {
+    "slide": 31,
+    "asset": "media7.mp4",
+    "type": "media",
+    "included": false
+  },
+  {
+    "slide": 31,
+    "asset": "image89.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 32,
+    "asset": "image93.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 32,
+    "asset": "image92.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 32,
+    "asset": "image91.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 32,
+    "asset": "image90.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 33,
+    "asset": "image94.jpeg",
+    "type": "image",
+    "included": true
+  },
+  {
+    "slide": 34,
+    "asset": "image95.jpeg",
+    "type": "image",
+    "included": true
+  },
+  {
+    "slide": 35,
+    "asset": "image96.jpeg",
+    "type": "image",
+    "included": true
+  },
+  {
+    "slide": 35,
+    "asset": "image99.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 35,
+    "asset": "image98.jpeg",
+    "type": "image",
+    "included": true
+  },
+  {
+    "slide": 35,
+    "asset": "image97.jpeg",
+    "type": "image",
+    "included": true
+  },
+  {
+    "slide": 36,
+    "asset": "image22.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 36,
+    "asset": "image21.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 37,
+    "asset": "image100.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 38,
+    "asset": "image102.svg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 38,
+    "asset": "image101.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 39,
+    "asset": "image101.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 39,
+    "asset": "image103.svg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 40,
+    "asset": "media8.mp4",
+    "type": "video",
+    "included": false
+  },
+  {
+    "slide": 40,
+    "asset": "media8.mp4",
+    "type": "media",
+    "included": false
+  },
+  {
+    "slide": 40,
+    "asset": "image104.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 41,
+    "asset": "image105.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 43,
+    "asset": "image58.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 44,
+    "asset": "image111.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 44,
+    "asset": "image106.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 44,
+    "asset": "image110.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 44,
+    "asset": "image109.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 44,
+    "asset": "image108.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 44,
+    "asset": "image107.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 45,
+    "asset": "image113.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 45,
+    "asset": "image112.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 45,
+    "asset": "image111.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 45,
+    "asset": "image117.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 45,
+    "asset": "image107.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 45,
+    "asset": "image110.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 45,
+    "asset": "image116.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 45,
+    "asset": "image109.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 45,
+    "asset": "image115.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 45,
+    "asset": "image108.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 45,
+    "asset": "image114.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 46,
+    "asset": "image116.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 46,
+    "asset": "image121.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 46,
+    "asset": "image107.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 46,
+    "asset": "image115.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 46,
+    "asset": "image120.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 46,
+    "asset": "image114.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 46,
+    "asset": "image119.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 46,
+    "asset": "image113.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 46,
+    "asset": "image118.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 46,
+    "asset": "image112.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 46,
+    "asset": "image117.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 47,
+    "asset": "image121.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 47,
+    "asset": "image107.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 47,
+    "asset": "image120.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 47,
+    "asset": "image125.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 47,
+    "asset": "image119.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 47,
+    "asset": "image124.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 47,
+    "asset": "image118.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 47,
+    "asset": "image123.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 47,
+    "asset": "image112.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 47,
+    "asset": "image122.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 48,
+    "asset": "image125.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 48,
+    "asset": "image107.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 48,
+    "asset": "image124.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 48,
+    "asset": "image129.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 48,
+    "asset": "image123.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 48,
+    "asset": "image128.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 48,
+    "asset": "image122.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 48,
+    "asset": "image127.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 48,
+    "asset": "image112.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 48,
+    "asset": "image126.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 49,
+    "asset": "image129.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 49,
+    "asset": "image107.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 49,
+    "asset": "image128.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 49,
+    "asset": "image133.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 49,
+    "asset": "image127.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 49,
+    "asset": "image132.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 49,
+    "asset": "image126.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 49,
+    "asset": "image131.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 49,
+    "asset": "image112.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 49,
+    "asset": "image130.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 50,
+    "asset": "image133.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 50,
+    "asset": "image107.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 50,
+    "asset": "image132.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 50,
+    "asset": "image129.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 50,
+    "asset": "image131.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 50,
+    "asset": "image128.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 50,
+    "asset": "image130.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 50,
+    "asset": "image127.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 50,
+    "asset": "image112.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 50,
+    "asset": "image126.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 51,
+    "asset": "image134.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 52,
+    "asset": "image137.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 52,
+    "asset": "image136.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 52,
+    "asset": "media9.mp4",
+    "type": "video",
+    "included": false
+  },
+  {
+    "slide": 52,
+    "asset": "media9.mp4",
+    "type": "media",
+    "included": false
+  },
+  {
+    "slide": 52,
+    "asset": "image135.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 52,
+    "asset": "image26.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 52,
+    "asset": "image139.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 52,
+    "asset": "image21.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 52,
+    "asset": "image138.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 53,
+    "asset": "image140.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 54,
+    "asset": "image141.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 55,
+    "asset": "image142.jpeg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 56,
+    "asset": "image18.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 56,
+    "asset": "image143.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 57,
+    "asset": "image143.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 57,
+    "asset": "image18.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 58,
+    "asset": "image143.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 58,
+    "asset": "image18.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 59,
+    "asset": "image145.svg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 59,
+    "asset": "image144.svg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 59,
+    "asset": "image146.svg",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 60,
+    "asset": "image143.png",
+    "type": "image",
+    "included": false
+  },
+  {
+    "slide": 60,
+    "asset": "image18.png",
+    "type": "image",
+    "included": false
+  }
+]

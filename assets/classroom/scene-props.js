@@ -233,6 +233,52 @@ export function honors() {
   return g;
 }
 
+export function bookshelf() {
+  const g = new T.Group();
+  const width = 2.46;
+  const depth = 0.40;
+  const wood = 0xc59361;
+  const trim = 0xecc49a;
+  const backing = 0x775941;
+
+  box(g, width, 0.95, 0.035, backing, 0, 0.515, -0.18);
+  for (const x of [-width / 2 + 0.025, width / 2 - 0.025]) {
+    box(g, 0.05, 0.97, depth, wood, x, 0.51);
+  }
+  for (const y of [0.08, 0.51, 1.0]) {
+    box(g, width, 0.05, depth, wood, 0, y);
+    box(g, width, 0.035, 0.025, trim, 0, y + 0.008, 0.20);
+  }
+  box(g, 0.043, 0.87, depth, wood, 0.28, 0.54);
+  box(g, width - 0.17, 0.055, 0.31, backing, 0, 0.028);
+
+  const covers = [0x388e86, 0x6c9ac7, 0xce7767, 0xe4ae55, 0x937fae, 0x547997];
+  for (const [start, base, count, offset] of [[-1.11, 0.535, 15, 0], [-1.11, 0.105, 12, 2], [0.4, 0.535, 8, 4]]) {
+    let x = start;
+    for (let i = 0; i < count; i++) {
+      const w = [0.055, 0.076, 0.061, 0.09][(i + offset) % 4];
+      const h = [0.27, 0.34, 0.30, 0.365, 0.285][(i + offset) % 5];
+      const color = covers[(i + offset) % covers.length];
+      const z = 0.038 - (i % 3) * 0.012;
+      box(g, w, h, 0.26, color, x + w / 2, base + h / 2, z);
+      box(g, w - 0.013, 0.005, 0.227, 0xf1e0bf, x + w / 2, base + h + 0.002, z - 0.01, false);
+      box(g, w * 0.64, 0.019, 0.004, 0xf2dcaa, x + w / 2, base + h * 0.74, z + 0.131, false);
+      x += w + 0.012;
+    }
+  }
+
+  for (const [i, caption, color] of [[0, "科學桌遊", 0x4f7e9f], [1, "策略遊戲", 0x547f73], [2, "科學挑戰", 0xb7745d]]) {
+    const x = 0.72 + (i % 2) * 0.037;
+    const y = 0.144 + i * 0.084;
+    box(g, 0.65 - i * 0.05, 0.075, 0.29, color, x, y, 0.025);
+    label(g, caption, 0.36, 0.053, x, y, 0.172, "#f2e6cc", "#2d4751");
+  }
+
+  g.rotation.y = -Math.PI / 2;
+  g.position.set(2.75, 0, -0.65);
+  return g;
+}
+
 function beaker(g, x, y, z, r = 0.085, h = 0.22, color = 0x2ad1ee) {
   const glass = basicMaterial(0xc6eef5, {
     transparent: true,
