@@ -203,7 +203,7 @@ button { color: inherit; font: inherit; cursor: pointer; }
 }
 .hotspot:enabled .hotspot-shape, .hotspot:enabled .hotspot-title { pointer-events: auto; }
 .hotspot:where([data-object="bookshelf"][aria-expanded="false"]) { z-index: 101 !important; }
-.hotspot[data-object="bookshelf"] .hotspot-shape { clip-path: var(--hotspot-face, none); }
+.hotspot:is([data-object="bookshelf"], [data-object="math"]) .hotspot-shape { clip-path: var(--hotspot-face, none); }
 .hotspot-title {
   position: absolute;
   z-index: 1;

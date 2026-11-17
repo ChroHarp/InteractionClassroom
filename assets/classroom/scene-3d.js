@@ -614,6 +614,18 @@ export function createClassroomScene3D(viewport, objects) {
       const boxW = Math.max(0, clRight - clLeft);
       const boxH = Math.max(0, clBottom - clTop);
       let face;
+      if (object.id === "math" && boxW > 12 && boxH > 12) {
+        // Project only the hexagonal tabletop, excluding stools and empty space.
+        const points = Array.from({ length: 6 }, (_, index) => {
+          const angle = index * Math.PI / 3;
+          corner.set(Math.sin(angle), 0.73, Math.cos(angle));
+          corner.applyMatrix4(entry.group.matrixWorld).project(camera);
+          const xPct = ((corner.x + 1) * width / 2 - clLeft) / boxW * 100;
+          const yPct = ((1 - corner.y) * height / 2 - clTop) / boxH * 100;
+          return `${xPct.toFixed(1)}% ${yPct.toFixed(1)}%`;
+        });
+        face = `polygon(${points.join(", ")})`;
+      }
       if (object.id === "bookshelf" && boxW > 12 && boxH > 12) {
         // Use the cabinet front so its hotspot can sit above the table's larger bounds.
         const corners = [[box.max.y, box.min.z], [box.max.y, box.max.z],

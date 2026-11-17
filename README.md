@@ -20,4 +20,6 @@
 
 榮譽榜下方的書櫃可開啟圖書與桌遊介紹，網址為 `classroom.html#bookshelf`。
 
+點白色六角桌上的「數學探索」，或開啟 `classroom.html#math`。三個獨立大面板同時呈現餘弦定理影片、學生作品連結與三年數學探索路徑，各自可捲動閱讀。影片由播放器啟動，離開數學探索時會暫停播放。文字目錄也可用 `content.html#math` 直接開啟。
+
 [工作進程](WORK-PROGRESS.md) · [來源盤點](data/classroom/SOURCES.md)

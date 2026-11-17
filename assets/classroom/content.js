@@ -109,6 +109,15 @@ export function playLabVideo() {
   video.play().catch(() => {});
 }
 
+function setupMathVideo(article) {
+  const panel = article.querySelector(".math-proof");
+  if (!panel) return;
+  const video = panel.querySelector("video");
+  const error = panel.querySelector(".math-video-error");
+  video.addEventListener("error", () => { error.hidden = false; });
+
+}
+
 const directoryGallery = document.querySelector(".content-directory #photos");
 if (directoryGallery) setupGallery(directoryGallery);
 const directoryLab = document.querySelector(".content-directory #experiment");
@@ -116,6 +125,8 @@ if (directoryLab) {
   setupLabTabs(directoryLab);
   setupLabPlaylist(directoryLab);
 }
+const directoryMath = document.querySelector(".content-directory #math");
+if (directoryMath) setupMathVideo(directoryMath);
 
 export function stopContentMedia() {
   root.querySelectorAll("video").forEach(video => video.pause());
@@ -142,6 +153,7 @@ export async function showContent(id) {
     setupGallery(article);
     setupLabTabs(article);
     setupLabPlaylist(article);
+    if (id === "math") setupMathVideo(article);
     if (id === "experiment") playLabVideo();
     const buttons = [...article.querySelectorAll("[data-grade]")];
     const choose = (grade, resetScroll = false) => {

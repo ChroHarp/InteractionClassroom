@@ -49,3 +49,11 @@
 - 原網站「自行折壘」與摘要「自己摺起來」名稱不同，本文採 S08 原文。生物炭市賽與全國賽各自記錄。
 - 使用者授權將簡報作為本機 Phase 5 材料。新照片／影片尚未部署公開，公開影像範圍仍依正式發布時確認。
 - 網站公開 URL 與 LINE 沿用來源連結，本輪未確認遠端可達性。
+
+## 數學探索｜2026-11-17
+
+- `assets/classroom/media/LawOfCosines.mp4` 取自「數學探索展示建議」對話的使用者附件，片長 84 秒，畫面為 1920 × 1080。主面板封面取自影片畫面。
+- 學生作品使用指定連結 [黑白禁手棋](https://doublechess-fe12e.web.app/chess.html) 與 [奧秘包絡線](https://chroharp.github.io/EnvelopeModel/)。封面為棋盤與包絡線的示意圖。
+- 三年路徑依本機 [MathTree](https://github.com/ChroHarp/MathTree) 版本 `89af0eb` 的 `prototype/catalog.json` 選題。年級安排用於展示探索方向，主題可依學生進度彈性安排。
+
+- 學生作品面板已加入兩個指定網站的實際首頁截圖，擷取日期為 2026-11-17。研究歷程介紹依使用者提供的展示方向撰寫。課程面板的 MathTree 外連已移除。

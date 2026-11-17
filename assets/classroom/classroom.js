@@ -14,10 +14,7 @@ const objects = [
     id: "blackboard", label: "學習理念",
     description: "從觀察與提問開始，練習思考、探究與實作。",
   },
-  {
-    id: "math", label: "數學探索",
-    description: "拿起方格紙，先預測圖形怎麼變，再試著說明你發現的規律。",
-  },
+  { id: "math", label: "數學探索" },
   {
     id: "courses", label: "三年課程",
     description: "七年級啟發試探、八年級探究實作、九年級適性分流。",
@@ -261,6 +258,7 @@ function showObject(object, focusDetail) {
   scene3d.setHighlighted(null);
   const isVideo = object.id === "kiosk";
   const isExperiment = object.id === "experiment";
+  const hasFloatingPanels = isExperiment || object.id === "math";
   const isHonors = object === honors;
   const detailHadFocus = detail.contains(document.activeElement) || document.activeElement === exitFocus;
   detail.hidden = true;
@@ -291,8 +289,8 @@ function showObject(object, focusDetail) {
       detail.hidden = false;
       detail.scrollTop = 0;
       detail.classList.remove("is-scrolled");
-      if (!isExperiment && document.activeElement === exitFocus) detailTitle.focus({ preventScroll: true });
-      exitFocus.hidden = !isExperiment;
+      if (!hasFloatingPanels && document.activeElement === exitFocus) detailTitle.focus({ preventScroll: true });
+      exitFocus.hidden = !hasFloatingPanels;
       if (isExperiment) playLabVideo();
     };
     if (isHonors && !reducedMotion()) {
