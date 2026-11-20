@@ -630,7 +630,7 @@ export function surfaces() {
     }
   });
 
-  // 6. Learning Moments Photo Wall (photos-board.webp) with 2x2 frames for 16:9 activity photos
+  // 6. Learning Moments board with four activity themes
   const gallery = canvasTexture(1280, 840, (c, w, h) => {
     c.fillStyle = "#d9ecf7";
     c.fillRect(0, 0, w, h);
@@ -640,16 +640,21 @@ export function surfaces() {
     c.fillText("探索紀事 · LEARNING MOMENTS", 56, 62);
 
     const frames = [
-      { cx: 340, cy: 278, col: "#f39e96" },
-      { cx: 940, cy: 278, col: "#74d4ae" },
-      { cx: 340, cy: 642, col: "#b19ce8" },
-      { cx: 940, cy: 642, col: "#72b8f0" },
+      { cx: 340, cy: 278, col: "#f39e96", label: "校外參訪" },
+      { cx: 940, cy: 278, col: "#74d4ae", label: "校際交流" },
+      { cx: 340, cy: 642, col: "#b19ce8", label: "科學推廣" },
+      { cx: 940, cy: 642, col: "#72b8f0", label: "成果分享" },
     ];
     const frameW = 524;
     const frameH = 330;
     for (const f of frames) {
       fillRoundedCard(c, f.cx - frameW / 2, f.cy - frameH / 2, frameW, frameH, 16, f.col, "#2a3e59", 5);
       fillRoundedCard(c, f.cx - 242, f.cy - 148, 484, 296, 10, "#1d3254", "#2a3e59", 3);
+      c.fillStyle = f.col;
+      c.font = "bold 64px 'Noto Sans TC', 'Microsoft JhengHei', sans-serif";
+      c.textAlign = "center";
+      c.textBaseline = "middle";
+      c.fillText(f.label, f.cx, f.cy);
     }
   });
 

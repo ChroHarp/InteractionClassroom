@@ -2,9 +2,20 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#14213a">
   <title>平興數資・探索教室</title>
+  <meta name="description" content="走進平興國中數理資優班的探索教室，認識課程、作品與學習成果。">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="zh_TW">
+  <meta property="og:title" content="平興數資・探索教室">
+  <meta property="og:description" content="走進平興國中數理資優班的探索教室，認識課程、作品與學習成果。">
+  <meta property="og:image" content="assets/classroom/room/classroom-preview.jpg">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="平興數資探索教室全景，右牆有行星壁畫、活動紀事與十週年壓克力海報。">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="stylesheet" href="assets/classroom/classroom.css">
   <link rel="stylesheet" href="assets/classroom/content.css">
   <script>
@@ -20,19 +31,39 @@
       <div class="viewport" id="viewport" tabindex="-1">
         <div class="pointer-rig" id="pointer-rig">
           <div class="world" id="world">
-            <img class="scene-art" src="assets/classroom/room/scene-fallback.jpg" width="1280" height="720" alt="探索教室真 3D 場景：斜向藍綠天花格柵、行星壁畫、彩色實驗器材、三色創客櫃與顯示平興數資 LOGO 的橫式教學螢幕。">
-            <div id="hotspots"></div>
+            <img class="scene-art" src="assets/classroom/room/classroom-preview.jpg" width="1200" height="630" alt="探索教室真 3D 場景：斜向藍綠天花格柵、行星壁畫、彩色實驗器材、三色創客櫃與顯示平興數資 LOGO 的橫式教學螢幕。">
+            <div id="hotspots">
+              <a class="poster-link" id="poster-link" href="https://www.psjh.tyc.edu.tw/PSJHGifted/" aria-label="前往平興數資官網" title="前往平興數資官網" hidden>
+                <span class="hotspot-marker" aria-hidden="true"></span>
+              </a>
+            </div>
           </div>
         </div>
         <div class="video-stage" id="video-stage" hidden></div>
       </div>
 
-      <nav class="scene-navigation" aria-label="教室物件導覽">
+      <div class="pan-hint" id="pan-hint" aria-hidden="true" hidden>
+        <span class="pan-hint-text">← 左右滑動探索教室 →</span>
+        <span class="pan-track"><span class="pan-thumb" id="pan-thumb"></span></span>
+      </div>
+
+      <header class="mobile-focus-bar" id="mobile-focus-bar" hidden>
+        <button class="back mobile-back" id="mobile-back" type="button"><span aria-hidden="true">←</span> 返回全景</button>
+        <p class="mobile-focus-title" id="mobile-focus-title" tabindex="-1"></p>
+      </header>
+
+      <nav class="scene-navigation" id="scene-navigation" aria-label="教室物件導覽">
         <button type="button" id="previous-object" aria-label="上一個物件"><span aria-hidden="true">←</span></button>
         <div class="scene-navigation-center">
           <p id="scene-status" role="status">選擇教室物件</p>
-          <p class="content-links"><a href="content.html">課程與作品目錄</a> · <a href="https://lin.ee/twA52IQj" target="_blank" rel="noopener">聯絡我們</a></p>
-          <div class="entrances" id="entrances" aria-label="教室物件"></div>
+          <button type="button" class="nav-drawer-toggle" id="nav-drawer-toggle" aria-expanded="false" aria-controls="nav-drawer" hidden>
+            <span class="nav-drawer-label" id="nav-drawer-label">探索教室 · 10 個物件</span>
+            <span class="nav-drawer-caret" aria-hidden="true">▴</span>
+          </button>
+          <div class="nav-drawer" id="nav-drawer">
+            <div class="entrances" id="entrances" aria-label="教室物件"></div>
+            <p class="content-links"><a href="content.html">課程與作品目錄</a> · <a href="https://lin.ee/twA52IQj" target="_blank" rel="noopener">聯絡我們</a></p>
+          </div>
         </div>
         <button type="button" id="next-object" aria-label="下一個物件"><span aria-hidden="true">→</span></button>
       </nav>
@@ -75,7 +106,7 @@
       </noscript>
       <p class="local-file-notice">
         請透過本機預覽開啟教室，才能使用物件入口。
-        <a href="http://127.0.0.1:8765/classroom.html">開啟本機預覽</a>
+        <a href="http://127.0.0.1:8765/">開啟本機預覽</a>
       </p>
     </div>
   </main>

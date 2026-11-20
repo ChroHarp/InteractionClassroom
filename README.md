@@ -1,25 +1,28 @@
 # 平興數資・探索教室
 
-像素教室全景、十個可互動的物件、榮譽榜與宣傳影片。場景參考平興國中的高斯、法拉第教室。
+以 Three.js 製作的平興國中數理資優班互動教室。可在桌面或手機探索 3D 場景，從展品進入課程、作品、活動紀事和榮譽榜。
 
-## 預覽
+## 在本機啟動
 
-在專案根目錄執行 `python -m http.server 8765 --bind 127.0.0.1`，然後開啟 [classroom.html](http://127.0.0.1:8765/classroom.html)。
+需要 Python 3 與支援 WebGL 的瀏覽器。Three.js 已隨專案提供，網站直接載入 HTML、CSS 與 JavaScript，無需安裝 npm 套件或執行打包。
 
-請使用上面的本機預覽網址。直接從檔案總管開啟 HTML 時，瀏覽器會阻擋互動程式與榮譽榜資料。
+```sh
+git clone https://github.com/ChroHarp/InteractionClassroom.git
+cd InteractionClassroom
+python -m http.server 8765 --bind 127.0.0.1
+```
 
-全景顯示物件的半透明標題。靠近物件後，可以點場景空白處回到全景，或直接點畫面中另一個物件切換視角。滑鼠或鍵盤聚焦會讓物件發光並突出標題。可用 Tab 選取、Enter 開啟、Escape 返回。窄螢幕也可使用底部的文字按鈕。鏡頭動畫依系統的減少動態偏好調整。
+瀏覽 [教室首頁](http://127.0.0.1:8765/) 或 [課程與作品目錄](http://127.0.0.1:8765/content.html)。JavaScript 模組與資料檔需要透過 HTTP 載入。外部影片及官網連結需要網路。
 
-畫面底部的左右按鈕可在十個物件間循環。開啟物件後也可用左右方向鍵移動鏡頭。在同一次探索中離開再回到榮譽榜，會保留篩選。瀏覽器的上一頁會回到全景。
+## 專案結構
 
-點觸控螢幕上的「數資班介紹影片」，鏡頭會推近，影片會在教室螢幕上自動靜音播放。可用播放器開啟聲音，離開這個視角時影片會停止。門邊的「最新消息」顯示班級首頁公告的本機摘錄。
+- `index.html` 是 3D 教室入口與分享縮圖設定。
+- `content.html` 是可獨立瀏覽的課程與作品目錄，也是教室展品的內容來源。
+- `assets/classroom/` 放置場景、互動、樣式、本機 Three.js 與已公開的素材。
+- `data/classroom/awards.json` 提供榮譽榜資料。
 
-場景使用 `assets/classroom/room/panorama.webp`。在 `assets/classroom/classroom.js` 的 `objects` 陣列，以全景的原圖像素座標調整熱點輪廓與標題位置。物件光暈直接沿用全景中的局部圖像。
+## 發布
 
-榮譽榜預設顯示最新年度，可按年份、類別及關鍵字篩選。可用 `classroom.html#honors?year=2024` 直接開啟特定年份。
+使用靜態網站主機，將 `index.html`、`content.html`、`assets/` 和 `data/` 以原有目錄結構發布。上線後，將首頁的 `og:image` 設為縮圖的完整公開 HTTPS 網址，並檢查手機操作及分享預覽。
 
-榮譽榜下方的書櫃可開啟圖書與桌遊介紹，網址為 `classroom.html#bookshelf`。
-
-點白色六角桌上的「數學探索」，或開啟 `classroom.html#math`。三個獨立大面板同時呈現餘弦定理影片、學生作品連結與三年數學探索路徑，各自可捲動閱讀。影片由播放器啟動，離開數學探索時會暫停播放。文字目錄也可用 `content.html#math` 直接開啟。
-
-[工作進程](WORK-PROGRESS.md) · [來源盤點](data/classroom/SOURCES.md)
+活動照片、影片和縮圖發布前都應檢查可辨識的人像，包括背景、畫中畫和 3D 場景截圖中的素材。原始檔請保存在版本庫外，公開版本只收錄經檢查的去識別化輸出或無人像替代素材。

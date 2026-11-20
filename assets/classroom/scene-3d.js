@@ -11,8 +11,8 @@ const ENTRY_BOARD_Z = 2.85;
 // Camera positions & targets for overview/zone views and each object focus.
 const VIEW_POSES = {
   overview: {
-    pos: [-0.65, 2.06, 7.55], target: [0.15, 1.48, -0.65], fov: 50,
-    compact: { pos: [-1.45, 2.24, 8.45], target: [0.05, 1.36, -0.55], fov: 52 },
+    pos: [-0.65, 2.06, 7.55], target: [0.60, 1.48, -0.65], fov: 50,
+    compact: { pos: [-0.05, 1.80, 6.05], target: [0.0, 1.38, -0.85], fov: 54, fixedFov: true },
   },
   front: {
     pos: [0.55, 1.68, 6.55], target: [-0.15, 1.54, -2.20], fov: 48,
@@ -118,6 +118,42 @@ function createWallBoard(tex, width, height, depth, edgeColor) {
 }
 
 const KIOSK_DISPLAY = { width: 1.02, height: 1.02 * 9 / 16 };
+
+function createLogoPoster(texture) {
+  const group = new THREE.Group();
+  const size = 0.96;
+  const thickness = 0.036;
+  const edge = celMaterial(0xaadce6, { transparent: true, opacity: 0.65, depthWrite: false });
+  const face = basicMaterial(0xe4f8ff, { transparent: true, opacity: 0.19, depthWrite: false });
+  const acrylic = new THREE.Mesh(
+    new THREE.BoxGeometry(size, size, thickness),
+    [edge, edge, edge, edge, face, face]
+  );
+  acrylic.renderOrder = 1;
+  group.add(acrylic);
+
+  const print = new THREE.Mesh(
+    new THREE.PlaneGeometry(0.84, 0.84),
+    basicMaterial(0xffffff, { map: texture, transparent: true, depthWrite: false })
+  );
+  print.position.z = 0.01;
+  group.add(print);
+
+  const mountGeometry = new THREE.CylinderGeometry(0.019, 0.019, 0.052, 12);
+  mountGeometry.rotateX(Math.PI / 2);
+  const mountMaterial = celMaterial(0xa1b9c9);
+  for (const x of [-0.42, 0.42]) {
+    for (const y of [-0.42, 0.42]) {
+      const mount = new THREE.Mesh(mountGeometry, mountMaterial);
+      mount.position.set(x, y, -0.003);
+      group.add(mount);
+    }
+  }
+
+  group.rotation.y = -Math.PI / 2;
+  group.position.set(HALF_W - 0.045, 1.9, 3.63);
+  return group;
+}
 
 function createKiosk(textures) {
   const group = new THREE.Group();
@@ -332,11 +368,19 @@ function getPose(view, objectId, isCompact) {
   return isCompact && viewPose.compact ? viewPose.compact : viewPose;
 }
 
-function computeAdjustedFov(baseFov, aspect) {
-  if (aspect >= 16 / 9) return baseFov;
+function computeAdjustedFov(baseFov, aspect, fixedFov = false) {
+  if (fixedFov || aspect >= 16 / 9) return baseFov;
   const baseRad = THREE.MathUtils.degToRad(baseFov);
   const scale = Math.min(2.65, (16 / 9) / Math.max(0.45, aspect));
   return Math.min(76, THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(baseRad / 2) * scale)));
+}
+
+const Y_AXIS = new THREE.Vector3(0, 1, 0);
+
+function computePanBounds(aspect, overviewMode) {
+  if (!overviewMode || aspect >= 1.15) return { enabled: false, min: 0, max: 0 };
+  const factor = THREE.MathUtils.clamp((1.15 - aspect) / 0.65, 0, 1);
+  return { enabled: factor > 0.05, min: -0.91 * factor, max: 0.72 * factor };
 }
 
 function setGroupHighlight(group, highlighted) {
@@ -378,10 +422,6 @@ export function createClassroomScene3D(viewport, objects) {
     ...surfaces(),
     ...loadTextures(renderer, [
       "logo-2025.webp",
-      "activity-1.jpg",
-      "activity-2.jpg",
-      "activity-3.jpg",
-      "activity-4.jpg",
     ], allLoaded => {
       if (allLoaded) canvas.dataset.ready = "true";
       requestRender();
@@ -436,25 +476,12 @@ export function createClassroomScene3D(viewport, objects) {
     photos: (() => {
       const g = new THREE.Group();
       g.add(createWallBoard(textures["photos-board.webp"], 1.72, 1.04, 0.045, 0x86c0ec));
-      const slots = [
-        [-0.403, 0.176, "activity-1.jpg"],
-        [0.403, 0.176, "activity-2.jpg"],
-        [-0.403, -0.275, "activity-3.jpg"],
-        [0.403, -0.275, "activity-4.jpg"],
-      ];
-      for (const [px, py, key] of slots) {
-        const photo = new THREE.Mesh(
-          new THREE.PlaneGeometry(0.651, 0.366),
-          basicMaterial(0xffffff, { map: textures[key] })
-        );
-        photo.position.set(px, py, 0.025);
-        g.add(photo);
-      }
       g.rotation.y = -Math.PI / 2;
       g.position.set(HALF_W - 0.08, 2.02, 2.25);
       return g;
     })(),
     maker: maker(),
+    "logo-poster": createLogoPoster(textures["logo-2025.webp"]),
   };
 
   const boundsById = {};
@@ -469,6 +496,7 @@ export function createClassroomScene3D(viewport, objects) {
     bookshelf: [0, 0.57, 0.20],
     photos: [0, 0, 0],
     maker: [0, 0.70, 0],
+    "logo-poster": [0, 0, 0],
   };
 
   for (const [id, group] of Object.entries(interactiveGroups)) {
@@ -481,11 +509,21 @@ export function createClassroomScene3D(viewport, objects) {
   // Camera state & pointer parallax (Render-on-Demand)
   const kioskDisplay = interactiveGroups.kiosk.userData.display;
   let kioskFocused = false;
+  let focusedObjectId = null;
+  let isOverviewMode = true;
+  let currentFixedFov = false;
   let currentPos = new THREE.Vector3(...VIEW_POSES.overview.pos);
   let currentTarget = new THREE.Vector3(...VIEW_POSES.overview.target);
   let currentFov = VIEW_POSES.overview.fov;
   let currentZoom = 1;
   let currentShift = 0;
+
+  let panYaw = 0;
+  let panYawTarget = 0;
+  let panVelocity = 0;
+  let panEnabled = false;
+  let panMin = 0;
+  let panMax = 0;
 
   let tween = null;
   let pointerOffset = new THREE.Vector2(0, 0);
@@ -493,6 +531,20 @@ export function createClassroomScene3D(viewport, objects) {
   let frame = 0;
   let activeHighlightId = null;
   let hotspotUpdater = null;
+
+  function getEffectiveTarget(pos = currentPos, target = currentTarget, yaw = panYaw) {
+    if (Math.abs(yaw) <= 1e-5) return target.clone();
+    const look = new THREE.Vector3().subVectors(target, pos).applyAxisAngle(Y_AXIS, yaw);
+    return pos.clone().add(look);
+  }
+
+  function getPanState() {
+    const span = panMax - panMin;
+    const progress = panEnabled && span > 1e-4
+      ? THREE.MathUtils.clamp((panMax - panYaw) / span, 0, 1)
+      : 0.5;
+    return { enabled: panEnabled, progress };
+  }
 
   function renderNow() {
     const width = viewport.clientWidth || 1280;
@@ -505,14 +557,28 @@ export function createClassroomScene3D(viewport, objects) {
       renderer.setSize(width, height, false);
     }
 
+    const bounds = computePanBounds(aspect, isOverviewMode && !tween);
+    panEnabled = bounds.enabled;
+    panMin = bounds.min;
+    panMax = bounds.max;
+    if (!panEnabled) {
+      panYaw = 0;
+      panYawTarget = 0;
+      panVelocity = 0;
+    } else {
+      panYaw = THREE.MathUtils.clamp(panYaw, panMin, panMax);
+      panYawTarget = THREE.MathUtils.clamp(panYawTarget, panMin, panMax);
+    }
+
     camera.aspect = aspect;
-    camera.fov = computeAdjustedFov(currentFov, aspect);
+    camera.fov = computeAdjustedFov(currentFov, aspect, currentFixedFov);
     camera.zoom = currentZoom;
     camera.updateProjectionMatrix();
     camera.projectionMatrix.elements[8] = -currentShift;
     camera.projectionMatrixInverse.copy(camera.projectionMatrix).invert();
 
-    const lookDir = new THREE.Vector3().subVectors(currentTarget, currentPos).normalize();
+    const effectiveTarget = getEffectiveTarget();
+    const lookDir = new THREE.Vector3().subVectors(effectiveTarget, currentPos).normalize();
     const rightAxis = new THREE.Vector3().crossVectors(lookDir, camera.up).normalize();
     const upAxis = new THREE.Vector3().crossVectors(rightAxis, lookDir).normalize();
     const shiftedPos = currentPos
@@ -521,7 +587,7 @@ export function createClassroomScene3D(viewport, objects) {
       .addScaledVector(upAxis, pointerOffset.y * 0.08);
 
     camera.position.copy(shiftedPos);
-    camera.lookAt(currentTarget);
+    camera.lookAt(effectiveTarget);
     camera.updateMatrixWorld(true);
     renderer.render(scene, camera);
 
@@ -538,7 +604,7 @@ export function createClassroomScene3D(viewport, objects) {
           height: (tl.y - br.y) * height / 2,
         };
       }
-      hotspotUpdater(projectAll(width, height), screen);
+      hotspotUpdater(projectAll(width, height), screen, getPanState());
     }
   }
 
@@ -561,6 +627,28 @@ export function createClassroomScene3D(viewport, objects) {
         tween = null;
       } else {
         keepGoing = true;
+      }
+    }
+
+    if (panEnabled && !tween) {
+      if (Math.abs(panVelocity) > 1e-4) {
+        const nextTarget = THREE.MathUtils.clamp(panYawTarget + panVelocity, panMin, panMax);
+        if (nextTarget === panYawTarget) {
+          panVelocity = 0;
+        } else {
+          panYawTarget = nextTarget;
+          panVelocity *= 0.88;
+        }
+        keepGoing = true;
+      } else {
+        panVelocity = 0;
+      }
+      if (Math.abs(panYawTarget - panYaw) > 1e-4) {
+        panYaw += (panYawTarget - panYaw) * 0.28;
+        if (Math.abs(panYawTarget - panYaw) <= 1e-4) panYaw = panYawTarget;
+        else keepGoing = true;
+      } else {
+        panYaw = panYawTarget;
       }
     }
 
@@ -613,6 +701,8 @@ export function createClassroomScene3D(viewport, objects) {
       const clBottom = Math.min(height, maxY);
       const boxW = Math.max(0, clRight - clLeft);
       const boxH = Math.max(0, clBottom - clTop);
+      let labelX = cx;
+      let labelY = cy;
       let face;
       if (object.id === "math" && boxW > 12 && boxH > 12) {
         // Project only the hexagonal tabletop, excluding stools and empty space.
@@ -626,8 +716,8 @@ export function createClassroomScene3D(viewport, objects) {
         });
         face = `polygon(${points.join(", ")})`;
       }
-      if (object.id === "bookshelf" && boxW > 12 && boxH > 12) {
-        // Use the cabinet front so its hotspot can sit above the table's larger bounds.
+      if (["bookshelf", "logo-poster"].includes(object.id) && boxW > 12 && boxH > 12) {
+        // Match the front face of objects mounted against the right wall.
         const corners = [[box.max.y, box.min.z], [box.max.y, box.max.z],
           [box.min.y, box.max.z], [box.min.y, box.min.z]];
         face = `polygon(${corners.map(([y, z]) => {
@@ -637,16 +727,25 @@ export function createClassroomScene3D(viewport, objects) {
           return `${xPct.toFixed(1)}% ${yPct.toFixed(1)}%`;
         }).join(", ")})`;
       }
+      if (object.id === "logo-poster") {
+        // Keep the marker at the lower-left corner of the plaque as the camera moves.
+        corner.set(box.min.x, box.min.y + 0.13, box.min.z + 0.13).project(camera);
+        labelX = (corner.x + 1) * width / 2;
+        labelY = (1 - corner.y) * height / 2;
+      }
+      const minSize = panEnabled ? 20 : 12;
+      const edgeClear = !panEnabled || (cx >= 30 && cx <= width - 30);
+      const labelMargin = object.id === "logo-poster" ? 0 : 18;
       out[object.id] = {
-        visible: inFront && boxW > 12 && boxH > 12,
+        visible: inFront && boxW > minSize && boxH > minSize && edgeClear,
         left: clLeft,
         top: clTop,
         width: boxW,
         height: boxH,
         depth: cProj.z,
         face,
-        titleX: boxW > 0 ? THREE.MathUtils.clamp(((cx - clLeft) / boxW) * 100, 18, 82) : 50,
-        titleY: boxH > 0 ? THREE.MathUtils.clamp(((cy - clTop) / boxH) * 100, 18, 82) : 50,
+        titleX: boxW > 0 ? THREE.MathUtils.clamp(((labelX - clLeft) / boxW) * 100, labelMargin, 100 - labelMargin) : 50,
+        titleY: boxH > 0 ? THREE.MathUtils.clamp(((labelY - clTop) / boxH) * 100, labelMargin, 100 - labelMargin) : 50,
       };
     }
     return out;
@@ -675,7 +774,12 @@ export function createClassroomScene3D(viewport, objects) {
 
   return {
     setPose(view, objectId, isCompact, duration = 0, onArrival = null) {
+      const wasOverview = isOverviewMode;
+      const fromEffectiveTarget = getEffectiveTarget();
+      focusedObjectId = objectId ?? null;
+      isOverviewMode = !focusedObjectId;
       const pose = getPose(view, objectId, isCompact);
+      currentFixedFov = Boolean(pose.fixedFov);
       const toPos = new THREE.Vector3(...pose.pos);
       const toTarget = new THREE.Vector3(...pose.target);
       const toFov = objectId === "kiosk" ? 42 : pose.fov;
@@ -684,6 +788,11 @@ export function createClassroomScene3D(viewport, objects) {
       const { zoom: toZoom, shift: toShift } = wideDetail
         ? fitLeftHalf(boundsById[objectId].box, toPos, toTarget, toFov, aspect)
         : { zoom: 1, shift: 0 };
+      if (focusedObjectId || !wasOverview) {
+        panYaw = 0;
+        panYawTarget = 0;
+        panVelocity = 0;
+      }
       kioskFocused = objectId === "kiosk";
       if (kioskFocused) {
         pointerOffset.set(0, 0);
@@ -712,7 +821,7 @@ export function createClassroomScene3D(viewport, objects) {
         start: performance.now(),
         duration,
         fromPos: currentPos.clone(),
-        fromTarget: currentTarget.clone(),
+        fromTarget: fromEffectiveTarget,
         fromFov: currentFov,
         fromZoom: currentZoom,
         fromShift: currentShift,
@@ -725,6 +834,29 @@ export function createClassroomScene3D(viewport, objects) {
       };
       requestRender();
     },
+
+    panBy(deltaPx) {
+      const width = viewport.clientWidth || 390;
+      const height = viewport.clientHeight || 844;
+      const aspect = width / Math.max(1, height);
+      const bounds = computePanBounds(aspect, isOverviewMode && !tween);
+      panEnabled = bounds.enabled;
+      panMin = bounds.min;
+      panMax = bounds.max;
+      if (!panEnabled) return getPanState();
+      panVelocity = 0;
+      panYawTarget = THREE.MathUtils.clamp(panYawTarget + deltaPx * 0.0042, panMin, panMax);
+      requestRender();
+      return getPanState();
+    },
+
+    flingPan(velocityPxPerFrame) {
+      if (!panEnabled || tween || !isOverviewMode) return;
+      panVelocity = THREE.MathUtils.clamp(velocityPxPerFrame * 0.0042, -0.09, 0.09);
+      if (Math.abs(panVelocity) > 1e-4) requestRender();
+    },
+
+    getPanState,
 
     setPointerDrift(nx, ny) {
       if (tween || kioskFocused) return;

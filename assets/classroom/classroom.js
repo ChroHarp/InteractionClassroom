@@ -1,4 +1,4 @@
-import { playLabVideo, showContent, stopContentMedia } from "./content.js";
+import { deactivateContent, playLabVideo, showContent } from "./content.js";
 import { createAwardsPanel } from "./awards.js";
 import { createClassroomScene3D } from "./scene-3d.js";
 
@@ -22,7 +22,7 @@ const objects = [
   { id: "honors", label: "榮譽榜", wideDetail: true },
   { id: "bookshelf", label: "圖書與桌遊" },
   {
-    id: "photos", label: "活動照片", wideDetail: true,
+    id: "photos", label: "活動紀事", wideDetail: true,
     description: "校外參訪、共學與成果分享，都是教室延伸出去的學習現場。",
   },
   {
@@ -33,11 +33,14 @@ const objects = [
 objects.forEach(object => { object.wideDetail = object.id !== "kiosk"; });
 
 const viewport = document.querySelector("#viewport");
-const scene3d = createClassroomScene3D(viewport, objects);
+const scene3d = createClassroomScene3D(viewport, [...objects, { id: "logo-poster" }]);
 viewport.dataset.scene = "3d";
 
+const room = document.querySelector("#room");
 const videoStage = document.querySelector("#video-stage");
 const hotspotList = document.querySelector("#hotspots");
+const posterLink = document.querySelector("#poster-link");
+const posterMarker = posterLink.querySelector(".hotspot-marker");
 const entranceList = document.querySelector("#entrances");
 const detail = document.querySelector("#detail");
 detail.addEventListener("scroll", () => {
@@ -46,6 +49,14 @@ detail.addEventListener("scroll", () => {
 const detailTitle = document.querySelector("#detail-title");
 const detailCopy = document.querySelector("#detail-copy");
 const back = document.querySelector("#back");
+const mobileFocusBar = document.querySelector("#mobile-focus-bar");
+const mobileBack = document.querySelector("#mobile-back");
+const mobileFocusTitle = document.querySelector("#mobile-focus-title");
+const sceneNavigation = document.querySelector("#scene-navigation");
+const navDrawerToggle = document.querySelector("#nav-drawer-toggle");
+const navDrawerLabel = document.querySelector("#nav-drawer-label");
+const panHint = document.querySelector("#pan-hint");
+const panThumb = document.querySelector("#pan-thumb");
 const compact = matchMedia("(max-width: 720px)");
 
 let activeObject = null;
@@ -71,21 +82,39 @@ function makeButton(object, inScene) {
     shape.className = "hotspot-shape";
     glow.append(shape);
 
+    const marker = document.createElement("span");
+    marker.className = "hotspot-marker";
+    marker.setAttribute("aria-hidden", "true");
     const title = document.createElement("span");
     title.className = "hotspot-title";
     title.textContent = object.label;
-    button.append(glow, title);
+    marker.append(title);
+    button.append(glow, marker);
 
-    const highlight = () => scene3d.setHighlighted(object.id);
-    const unhighlight = () => scene3d.setHighlighted(null);
-    button.addEventListener("pointerenter", highlight);
-    button.addEventListener("pointerleave", unhighlight);
-    button.addEventListener("focus", highlight);
-    button.addEventListener("blur", unhighlight);
+    button.addEventListener("pointerenter", event => {
+      if (event.pointerType !== "mouse") return;
+      button.dataset.mouseOver = "";
+      scene3d.setHighlighted(object.id);
+    });
+    button.addEventListener("pointerleave", event => {
+      if (event.pointerType !== "mouse") return;
+      delete button.dataset.mouseOver;
+      if (!button.matches(":focus-visible")) scene3d.setHighlighted(null);
+    });
+    button.addEventListener("focus", () => {
+      if (button.matches(":focus-visible")) scene3d.setHighlighted(object.id);
+    });
+    button.addEventListener("blur", () => {
+      if (!button.hasAttribute("data-mouse-over")) scene3d.setHighlighted(null);
+    });
   } else {
     button.textContent = object.label;
-    button.addEventListener("pointerenter", () => scene3d.setHighlighted(object.id));
-    button.addEventListener("pointerleave", () => scene3d.setHighlighted(null));
+    button.addEventListener("pointerenter", event => {
+      if (event.pointerType === "mouse") scene3d.setHighlighted(object.id);
+    });
+    button.addEventListener("pointerleave", event => {
+      if (event.pointerType === "mouse") scene3d.setHighlighted(null);
+    });
   }
   button.addEventListener("click", () => openObject(object, button));
   return button;
@@ -96,17 +125,36 @@ const entries = objects.map(object => {
   const quickLink = makeButton(object, false);
   hotspotList.append(hotspot);
   entranceList.append(quickLink);
-  return { object, hotspot, quickLink, title: hotspot.querySelector(".hotspot-title") };
+  return { object, hotspot, quickLink, marker: hotspot.querySelector(".hotspot-marker") };
 });
 
-scene3d.onHotspotsProject((projected, screen) => {
+scene3d.onHotspotsProject((projected, screen, panState) => {
   if (screen) {
     for (const [key, value] of Object.entries(screen)) videoStage.style[key] = `${value}px`;
   }
-  for (const { object, hotspot, title } of entries) {
+  if (panHint) {
+    const showPan = Boolean(panState?.enabled && !activeObject);
+    panHint.hidden = !showPan;
+    viewport.toggleAttribute("data-swipe-pan", showPan);
+    if (showPan) {
+      panThumb.style.setProperty("--pan-progress", String(panState.progress ?? 0.5));
+    }
+  }
+  const hiddenInMobileFocus = compact.matches && Boolean(activeObject);
+  const posterBox = projected["logo-poster"];
+  posterLink.hidden = hiddenInMobileFocus || !posterBox?.visible;
+  if (!posterLink.hidden) {
+    for (const key of ["left", "top", "width", "height"]) {
+      posterLink.style[key] = `${posterBox[key]}px`;
+    }
+    posterLink.style.setProperty("--hotspot-face", posterBox.face);
+    posterMarker.style.left = `${posterBox.titleX}%`;
+    posterMarker.style.top = `${posterBox.titleY}%`;
+  }
+  for (const { object, hotspot, marker } of entries) {
     const box = projected[object.id];
     const coveredByVideo = activeObject?.id === "kiosk" && ["math", "kiosk"].includes(object.id);
-    if (coveredByVideo || !box || !box.visible) {
+    if (hiddenInMobileFocus || coveredByVideo || !box || !box.visible) {
       hotspot.style.visibility = "hidden";
       continue;
     }
@@ -117,8 +165,8 @@ scene3d.onHotspotsProject((projected, screen) => {
     hotspot.style.height = `${box.height.toFixed(1)}px`;
     hotspot.style.zIndex = String(Math.max(1, Math.round((1 - box.depth) * 100)));
     if (box.face) hotspot.style.setProperty("--hotspot-face", box.face);
-    title.style.left = `${box.titleX.toFixed(1)}%`;
-    title.style.top = `${box.titleY.toFixed(1)}%`;
+    marker.style.left = `${box.titleX.toFixed(1)}%`;
+    marker.style.top = `${box.titleY.toFixed(1)}%`;
   }
 });
 
@@ -230,10 +278,19 @@ function adjacentObject(step) {
   return objects[(index + step + objects.length) % objects.length];
 }
 
+function setDrawerOpen(open) {
+  const next = Boolean(open && compact.matches);
+  navDrawerToggle.setAttribute("aria-expanded", String(next));
+  if (next) sceneNavigation.dataset.drawerOpen = "true";
+  else delete sceneNavigation.dataset.drawerOpen;
+}
+
 function updateNavigation() {
-  sceneStatus.textContent = activeObject
+  const statusLabel = activeObject
     ? `${activeObject.label} · ${objects.indexOf(activeObject) + 1} / ${objects.length}`
-    : "選擇教室物件";
+    : `探索教室 · ${objects.length} 個物件`;
+  sceneStatus.textContent = activeObject ? statusLabel : "選擇教室物件";
+  navDrawerLabel.textContent = statusLabel;
   previousObject.setAttribute("aria-label", `上一個物件：${adjacentObject(-1).label}`);
   nextObject.setAttribute("aria-label", `下一個物件：${adjacentObject(1).label}`);
   for (const { object, hotspot, quickLink } of entries) {
@@ -241,7 +298,7 @@ function updateNavigation() {
     hotspot.setAttribute("aria-expanded", expanded);
     hotspot.tabIndex = object === activeObject ? -1 : 0;
     quickLink.setAttribute("aria-expanded", expanded);
-    if (object === activeObject && !quickLink.hidden) {
+    if (!compact.matches && object === activeObject && !quickLink.hidden) {
       const rail = entranceList.getBoundingClientRect();
       const item = quickLink.getBoundingClientRect();
       entranceList.scrollLeft += Math.min(0, item.left - rail.left - 4)
@@ -250,20 +307,50 @@ function updateNavigation() {
   }
 }
 
+function syncCompactUI() {
+  const isCompact = compact.matches;
+  navDrawerToggle.hidden = !isCompact;
+  if (!isCompact) setDrawerOpen(false);
+  mobileFocusBar.hidden = !(isCompact && activeObject);
+  mobileFocusTitle.textContent = activeObject?.label ?? "";
+  if (activeObject) {
+    room.dataset.focusActive = "true";
+    room.dataset.object = activeObject.id;
+    const needsExitFocus = ["kiosk", "experiment", "math"].includes(activeObject.id);
+    exitFocus.hidden = isCompact || !needsExitFocus;
+  } else {
+    delete room.dataset.focusActive;
+    delete room.dataset.object;
+    exitFocus.hidden = true;
+  }
+}
+
 function showObject(object, focusDetail) {
   clearDetailReveal();
   stopVideo();
-  stopContentMedia();
+  setDrawerOpen(false);
   activeObject = object;
   scene3d.setHighlighted(null);
   const isVideo = object.id === "kiosk";
   const isExperiment = object.id === "experiment";
   const hasFloatingPanels = isExperiment || object.id === "math";
   const isHonors = object === honors;
-  const detailHadFocus = detail.contains(document.activeElement) || document.activeElement === exitFocus;
+  const detailHadFocus = detail.contains(document.activeElement) ||
+    document.activeElement === exitFocus || mobileFocusBar.contains(document.activeElement);
+  deactivateContent();
   detail.hidden = true;
-  exitFocus.hidden = false;
-  if (focusDetail || detailHadFocus) exitFocus.focus({ preventScroll: true });
+  room.dataset.focusActive = "true";
+  room.dataset.object = object.id;
+  if (compact.matches) {
+    mobileFocusTitle.textContent = object.label;
+    mobileFocusBar.hidden = false;
+    exitFocus.hidden = true;
+    if (focusDetail || detailHadFocus) mobileFocusTitle.focus({ preventScroll: true });
+  } else {
+    mobileFocusBar.hidden = true;
+    exitFocus.hidden = false;
+    if (focusDetail || detailHadFocus) exitFocus.focus({ preventScroll: true });
+  }
   updateNavigation();
   detailTitle.textContent = object.label;
   detailCopy.hidden = true;
@@ -289,8 +376,10 @@ function showObject(object, focusDetail) {
       detail.hidden = false;
       detail.scrollTop = 0;
       detail.classList.remove("is-scrolled");
-      if (!hasFloatingPanels && document.activeElement === exitFocus) detailTitle.focus({ preventScroll: true });
-      exitFocus.hidden = !hasFloatingPanels;
+      if (!compact.matches && !hasFloatingPanels && document.activeElement === exitFocus) {
+        detailTitle.focus({ preventScroll: true });
+      }
+      exitFocus.hidden = compact.matches || !hasFloatingPanels;
       if (isExperiment) playLabVideo();
     };
     if (isHonors && !reducedMotion()) {
@@ -307,45 +396,118 @@ function closeDetail() {
   const selected = entries.find(entry => entry.object === activeObject);
   const origin = originTrigger;
   const restoreFocus = detail.contains(document.activeElement) ||
-    videoStage.contains(document.activeElement) || document.activeElement === exitFocus;
+    videoStage.contains(document.activeElement) || document.activeElement === exitFocus ||
+    mobileFocusBar.contains(document.activeElement);
+  deactivateContent();
   if (restoreFocus) viewport.focus({ preventScroll: true });
   stopVideo();
-  stopContentMedia();
+  setDrawerOpen(false);
   activeObject = null;
   originTrigger = null;
+  delete room.dataset.focusActive;
+  delete room.dataset.object;
   detail.hidden = true;
   exitFocus.hidden = true;
+  mobileFocusBar.hidden = true;
+  mobileFocusTitle.textContent = "";
   updateNavigation();
 
   moveCamera(470, () => {
     if (restoreFocus && document.activeElement === viewport) {
-      const fallback = compact.matches ? selected.quickLink : selected.hotspot;
       const isVisible = button => button?.getClientRects().length && getComputedStyle(button).visibility === "visible";
-      const candidate = [origin, fallback, selected.quickLink].find(isVisible);
+      const candidate = [origin, selected.hotspot, compact.matches ? navDrawerToggle : selected.quickLink].find(isVisible);
       candidate?.focus({ preventScroll: true });
     }
   });
 }
 
 let pendingArrival = null;
+let panPointerId = null;
+let panStartX = 0;
+let panStartY = 0;
+let panLastX = 0;
+let panLastTime = 0;
+let panLastVel = 0;
+let panDragging = false;
+let suppressClick = false;
+let suppressClickTimer = 0;
 
 function resetPointerView() {
   scene3d.setPointerDrift(0, 0);
 }
 
+viewport.addEventListener("pointerdown", event => {
+  if (event.pointerType !== "mouse") resetPointerView();
+  if (event.isPrimary) {
+    suppressClick = false;
+    clearTimeout(suppressClickTimer);
+  }
+  if (activeObject || !event.isPrimary || !scene3d.getPanState().enabled) return;
+  if (event.pointerType === "mouse" && event.button !== 0) return;
+  if (event.target.closest(".scene-navigation, .detail, .mobile-focus-bar, #video-stage")) return;
+  panPointerId = event.pointerId;
+  panStartX = event.clientX;
+  panStartY = event.clientY;
+  panLastX = event.clientX;
+  panLastTime = performance.now();
+  panLastVel = 0;
+  panDragging = false;
+}, { passive: true });
+
 viewport.addEventListener("pointermove", event => {
-  if (event.pointerType !== "mouse" || reducedMotion()) return;
+  if (event.pointerId === panPointerId && !activeObject) {
+    const dxTotal = event.clientX - panStartX;
+    const dyTotal = event.clientY - panStartY;
+    if (!panDragging && Math.abs(dxTotal) > 8 && Math.abs(dxTotal) > Math.abs(dyTotal)) {
+      panDragging = true;
+      try { viewport.setPointerCapture(panPointerId); } catch {}
+      if (panHint) panHint.dataset.interacted = "true";
+    }
+    if (panDragging) {
+      const dx = event.clientX - panLastX;
+      const now = performance.now();
+      const dt = Math.max(8, now - panLastTime);
+      panLastVel = dx * (16 / dt);
+      panLastX = event.clientX;
+      panLastTime = now;
+      scene3d.panBy(dx);
+    }
+    return;
+  }
+  if (event.pointerType !== "mouse" || reducedMotion() || scene3d.getPanState().enabled) return;
   const { left, top, width, height } = viewport.getBoundingClientRect();
   const horizontal = Math.max(-1, Math.min(1, 2 * (event.clientX - left) / width - 1));
   const vertical = Math.max(-1, Math.min(1, 2 * (event.clientY - top) / height - 1));
   scene3d.setPointerDrift(horizontal, -vertical);
 }, { passive: true });
 
+function endPanGesture(event) {
+  if (event.pointerId !== panPointerId) return;
+  if (panDragging) {
+    if (event.type === "pointerup" && !reducedMotion() && performance.now() - panLastTime < 80) {
+      scene3d.flingPan(panLastVel);
+    }
+    suppressClick = true;
+    clearTimeout(suppressClickTimer);
+    suppressClickTimer = setTimeout(() => { suppressClick = false; }, 80);
+    if (viewport.hasPointerCapture?.(panPointerId)) {
+      try { viewport.releasePointerCapture(panPointerId); } catch {}
+    }
+  }
+  panPointerId = null;
+  panDragging = false;
+}
+
+viewport.addEventListener("pointerup", endPanGesture);
+viewport.addEventListener("pointercancel", endPanGesture);
 viewport.addEventListener("pointerleave", resetPointerView);
-viewport.addEventListener("pointercancel", resetPointerView);
-viewport.addEventListener("pointerdown", event => {
-  if (event.pointerType !== "mouse") resetPointerView();
-}, { passive: true });
+viewport.addEventListener("click", event => {
+  if (!suppressClick) return;
+  event.preventDefault();
+  event.stopPropagation();
+  suppressClick = false;
+  clearTimeout(suppressClickTimer);
+}, true);
 
 function moveCamera(duration = 0, onArrival = null) {
   resetPointerView();
@@ -378,20 +540,37 @@ function closeFromControl() {
 }
 
 viewport.addEventListener("click", event => {
-  if (activeObject && !event.target.closest(".hotspot, #video-stage")) closeFromControl();
+  if (activeObject && !event.target.closest(".hotspot, .poster-link, #video-stage")) closeFromControl();
 });
 
-for (const button of [back, exitFocus]) {
+for (const button of [back, exitFocus, mobileBack]) {
   button.addEventListener("click", closeFromControl);
 }
+navDrawerToggle.addEventListener("click", () => {
+  setDrawerOpen(sceneNavigation.dataset.drawerOpen !== "true");
+});
+document.addEventListener("click", event => {
+  if (sceneNavigation.dataset.drawerOpen === "true" && !event.target.closest("#scene-navigation")) {
+    setDrawerOpen(false);
+  }
+});
 previousObject.addEventListener("click", () => openObject(adjacentObject(-1), previousObject, false));
 nextObject.addEventListener("click", () => openObject(adjacentObject(1), nextObject, false));
 motionPreference.addEventListener("change", refreshMotion);
+compact.addEventListener("change", syncCompactUI);
 document.addEventListener("keydown", event => {
   if (event.defaultPrevented || event.target.closest("dialog[open], video")) return;
-  if (event.key === "Escape" && activeObject) closeFromControl();
+  if (event.key === "Escape") {
+    if (sceneNavigation.dataset.drawerOpen === "true") {
+      setDrawerOpen(false);
+      navDrawerToggle.focus({ preventScroll: true });
+      return;
+    }
+    if (activeObject) closeFromControl();
+  }
   if (!activeObject || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey ||
-      event.target.matches("input, select, textarea, [contenteditable]")) return;
+      event.target.matches("input, select, textarea, [contenteditable]") ||
+      event.target.closest(".panel-track, .math-exhibits, .panel-switcher, .awards-results")) return;
   const step = { ArrowLeft: -1, ArrowRight: 1 }[event.key];
   if (step) {
     event.preventDefault();
@@ -408,6 +587,7 @@ new ResizeObserver(() => {
 window.addEventListener("popstate", syncRoute);
 window.addEventListener("hashchange", syncRoute);
 
+syncCompactUI();
 updateNavigation();
 refreshMotion();
 syncRoute();

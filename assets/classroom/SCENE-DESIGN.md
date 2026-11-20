@@ -34,11 +34,9 @@
 | `scene-materials.js` | 統一賽璐璐調色盤、`MeshToonMaterial` 階調貼圖、共用墨線描邊 `addInkEdges`、地板／壁畫／黑板／課表／軟木公佈欄／活動框／橫式 Kiosk Canvas 繪製 |
 | `scene-props.js` | 榮譽榜（銀灰溝槽板＋24 面木牌）、科學實驗台、三色創客櫃、數學桌教具（含直立圓規）、盆栽 |
 | `materials/logo-2025.webp` | 橫式 Kiosk 螢幕左側 LOGO（轉檔保留完整比例） |
-| `materials/activity-1..4.jpg` | 活動相片牆 4 張 16:9 活動照片 |
-| `room/scene-fallback.jpg` | 同一個最終 3D 場景的無 UI 全景預覽截圖（`1280×720`） |
+| `room/classroom-preview.jpg` | 無互動介面的教室全景，供首頁預覽與分享縮圖使用 |
 
 ## 維護規則
 
 - 維持按需渲染（Render-on-Demand），靜止閱讀不持續消耗 GPU；互動元素與非互動建築不共用可變材質實例，避免懸停高亮牽連他處。
 - 物件尺寸與空間位置在模型模組內調整，各區與特寫構圖在 `scene-3d.js` 的 `VIEW_POSES` / `OBJECT_POSES` 調整。
-- 舊 `textures/`、`honors-camera.js`、`kiosk-camera.js` 與早期 2D 設計圖保留供歷史追溯，現行 3D 場景不再載入。
