@@ -148,6 +148,19 @@ function setupLabTabs(article) {
   tablist.hidden = false;
 }
 
+function setupLabPlaylist(article) {
+  const video = article.querySelector("video[data-next-clips]");
+  if (!video) return;
+  const clips = [video.querySelector("source").src, ...video.dataset.nextClips.split(" ")];
+  let current = 0;
+  video.addEventListener("ended", () => {
+    if (!video.isConnected || video.closest(".detail[hidden]")) return;
+    current = (current + 1) % clips.length;
+    video.src = clips[current];
+    video.play().catch(() => {});
+  });
+}
+
 export function playLabVideo() {
   const video = root.querySelector(".lab-video video");
   if (!video || video.closest(".detail[hidden]")) return;
@@ -169,7 +182,7 @@ function setupMobilePanels(article) {
     if (!labVideo || !labPlan) return;
     const heading = document.createElement("h3");
     heading.className = "lab-video-heading";
-    heading.textContent = "顯微鏡觀察影像";
+    heading.textContent = "課堂實驗影片";
     labVideo.prepend(heading);
     track = document.createElement("div");
     track.className = "panel-track";
@@ -179,7 +192,7 @@ function setupMobilePanels(article) {
     labVideo.before(track);
     track.append(labVideo, labPlan);
     slides = [
-      { el: labVideo, label: "觀察影像" },
+      { el: labVideo, label: "實驗影片" },
       { el: labPlan, label: "實驗課程表" },
     ];
   } else if (article.id === "math") {
@@ -387,6 +400,7 @@ if (directoryGallery) setupGallery(directoryGallery);
 const directoryLab = document.querySelector(".content-directory #experiment");
 if (directoryLab) {
   setupLabTabs(directoryLab);
+  setupLabPlaylist(directoryLab);
 }
 const directoryMath = document.querySelector(".content-directory #math");
 if (directoryMath) setupMathVideo(directoryMath);
@@ -419,6 +433,7 @@ export async function showContent(id) {
     if (article.hasAttribute("data-card-label")) setupCardViewer(article);
     setupGallery(article);
     setupLabTabs(article);
+    setupLabPlaylist(article);
     if (id === "math") setupMathVideo(article);
     setupMobilePanels(article);
     if (id === "experiment") playLabVideo();
