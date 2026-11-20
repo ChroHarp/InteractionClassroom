@@ -570,7 +570,7 @@ document.addEventListener("keydown", event => {
   }
   if (!activeObject || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey ||
       event.target.matches("input, select, textarea, [contenteditable]") ||
-      event.target.closest(".panel-track, .math-exhibits, .panel-switcher, .awards-results")) return;
+      event.target.closest(".exhibit-track, .panel-switcher, .awards-results")) return;
   const step = { ArrowLeft: -1, ArrowRight: 1 }[event.key];
   if (step) {
     event.preventDefault();

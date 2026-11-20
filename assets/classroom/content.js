@@ -174,44 +174,11 @@ function setupMathVideo(article) {
 }
 
 function setupMobilePanels(article) {
-  let track;
-  let slides;
-  if (article.id === "experiment") {
-    const labVideo = article.querySelector(".lab-video");
-    const labPlan = article.querySelector(".lab-plan");
-    if (!labVideo || !labPlan) return;
-    const heading = document.createElement("h3");
-    heading.className = "lab-video-heading";
-    heading.textContent = "課堂實驗影片";
-    labVideo.prepend(heading);
-    track = document.createElement("div");
-    track.className = "panel-track";
-    track.setAttribute("role", "group");
-    track.setAttribute("aria-label", "科學探究面板");
-    track.tabIndex = 0;
-    labVideo.before(track);
-    track.append(labVideo, labPlan);
-    slides = [
-      { el: labVideo, label: "實驗影片" },
-      { el: labPlan, label: "實驗課程表" },
-    ];
-  } else if (article.id === "math") {
-    track = article.querySelector(".math-exhibits");
-    const proof = article.querySelector(".math-proof");
-    const path = article.querySelector(".math-path");
-    const projects = article.querySelector(".math-projects");
-    if (!track || !proof || !path || !projects) return;
-    track.setAttribute("role", "group");
-    track.setAttribute("aria-label", "數學探索面板");
-    track.tabIndex = 0;
-    slides = [
-      { el: proof, label: "幾何證明" },
-      { el: path, label: "三年路徑" },
-      { el: projects, label: "學生作品" },
-    ];
-  } else {
-    return;
-  }
+  const track = article.querySelector(".exhibit-track");
+  if (!track) return;
+  const slides = [...track.children].map(el => ({ el, label: el.dataset.panelLabel }));
+  track.setAttribute("role", "group");
+  track.tabIndex = 0;
 
   slides.forEach((slide, index) => {
     slide.el.setAttribute("role", "group");
