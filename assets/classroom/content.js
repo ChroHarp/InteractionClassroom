@@ -61,6 +61,50 @@ function setupCardViewer(article) {
   setupViewerNavigation(dialog, step => display(current + step));
 }
 
+function setupGallery(article) {
+  const dialog = article.querySelector(".photo-viewer");
+  if (!dialog || typeof dialog.showModal !== "function") return;
+
+  const photos = [...article.querySelectorAll("[data-photo]")];
+  const image = dialog.querySelector("img");
+  const title = dialog.querySelector("strong");
+  const caption = dialog.querySelector("p");
+  const counter = dialog.querySelector(".photo-description span");
+  let current = 0;
+
+  function display(index) {
+    current = (index + photos.length) % photos.length;
+    const photo = photos[current];
+    title.textContent = photo.querySelector("span").textContent;
+    caption.textContent = photo.nextElementSibling.textContent;
+    counter.textContent = `${current + 1} / ${photos.length}`;
+    image.alt = title.textContent;
+    image.width = Number(photo.dataset.width);
+    image.height = Number(photo.dataset.height);
+    image.src = photo.href;
+  }
+
+  photos.forEach((photo, index) => photo.addEventListener("click", event => {
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    display(index);
+    dialog.showModal();
+  }));
+  dialog.querySelector("[data-photo-close]").addEventListener("click", () => dialog.close());
+  dialog.querySelector("[data-photo-prev]").addEventListener("click", () => display(current - 1));
+  dialog.querySelector("[data-photo-next]").addEventListener("click", () => display(current + 1));
+  dialog.addEventListener("click", event => {
+    if (event.target === dialog) dialog.close();
+  });
+  dialog.addEventListener("keydown", event => {
+    const step = { ArrowLeft: -1, ArrowRight: 1 }[event.key];
+    if (step && !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
+      event.preventDefault();
+      display(current + step);
+    }
+  });
+}
+
 function setupLabTabs(article) {
   const tablist = article.querySelector(".lab-tabs");
   if (!tablist) return;
@@ -338,6 +382,8 @@ function setupMobilePanels(article) {
 }
 
 document.querySelectorAll(".content-directory [data-card-label]").forEach(setupCardViewer);
+const directoryGallery = document.querySelector(".content-directory #photos");
+if (directoryGallery) setupGallery(directoryGallery);
 const directoryLab = document.querySelector(".content-directory #experiment");
 if (directoryLab) {
   setupLabTabs(directoryLab);
@@ -371,6 +417,7 @@ export async function showContent(id) {
     article.querySelector("h2").remove();
     root.replaceChildren(article);
     if (article.hasAttribute("data-card-label")) setupCardViewer(article);
+    setupGallery(article);
     setupLabTabs(article);
     if (id === "math") setupMathVideo(article);
     setupMobilePanels(article);

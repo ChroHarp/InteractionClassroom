@@ -422,6 +422,10 @@ export function createClassroomScene3D(viewport, objects) {
     ...surfaces(),
     ...loadTextures(renderer, [
       "logo-2025.webp",
+      "activity-1.webp",
+      "activity-2.webp",
+      "activity-3.webp",
+      "activity-4.webp",
     ], allLoaded => {
       if (allLoaded) canvas.dataset.ready = "true";
       requestRender();
@@ -476,6 +480,20 @@ export function createClassroomScene3D(viewport, objects) {
     photos: (() => {
       const g = new THREE.Group();
       g.add(createWallBoard(textures["photos-board.webp"], 1.72, 1.04, 0.045, 0x86c0ec));
+      const slots = [
+        [-0.403, 0.176, "activity-1.webp"],
+        [0.403, 0.176, "activity-2.webp"],
+        [-0.403, -0.275, "activity-3.webp"],
+        [0.403, -0.275, "activity-4.webp"],
+      ];
+      for (const [px, py, key] of slots) {
+        const photo = new THREE.Mesh(
+          new THREE.PlaneGeometry(0.651, 0.366),
+          basicMaterial(0xffffff, { map: textures[key] })
+        );
+        photo.position.set(px, py, 0.025);
+        g.add(photo);
+      }
       g.rotation.y = -Math.PI / 2;
       g.position.set(HALF_W - 0.08, 2.02, 2.25);
       return g;

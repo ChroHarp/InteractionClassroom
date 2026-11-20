@@ -22,7 +22,7 @@ const objects = [
   { id: "honors", label: "榮譽榜", wideDetail: true },
   { id: "bookshelf", label: "圖書與桌遊" },
   {
-    id: "photos", label: "活動紀事", wideDetail: true,
+    id: "photos", label: "活動照片", wideDetail: true,
     description: "校外參訪、共學與成果分享，都是教室延伸出去的學習現場。",
   },
   {
